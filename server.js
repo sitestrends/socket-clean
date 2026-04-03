@@ -1,4 +1,3 @@
-console.log("BOOTING SERVER ONCE");
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -8,11 +7,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [
-      "http://localhost",
-      "http://127.0.0.1",
-      "https://sitesfortrends.com"
-    ],
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
@@ -40,7 +35,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(process.env.PORT || 8080, "0.0.0.0", () => {
+server.listen(process.env.PORT || 3000, () => {
   console.log("🔥 SERVER CLEAN RUNNING");
 });
-console.log("SERVER IS STILL ALIVE");
