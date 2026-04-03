@@ -3,6 +3,14 @@ const http = require("http");
 const { Server } = require("socket.io");
 
 const app = express();
+
+// ✅ CORS FIX
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "*");
+  next();
+});
+
 const server = http.createServer(app);
 
 const PORT = process.env.PORT || 8080;
@@ -13,14 +21,6 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
     credentials: true
   }
-});
-
-const app = express();
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "*");
-  next();
 });
 
 io.on("connection", (socket) => {
