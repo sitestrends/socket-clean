@@ -4,23 +4,13 @@ const { Server } = require("socket.io");
 
 const app = express();
 
-// ✅ CORS FIX
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "*");
-  next();
-});
-
 const server = http.createServer(app);
-
-const PORT = process.env.PORT || 8080;
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost", "https://sitesfortrends.com"],
-    methods: ["GET", "POST"],
-    credentials: true
-  }
+    origin: "*"
+  },
+  transports: ["websocket", "polling"]
 });
 
 io.on("connection", (socket) => {
@@ -45,6 +35,6 @@ io.on("connection", (socket) => {
   });
 });
 
-server.listen(PORT, "0.0.0.0", () => {
-  console.log("🔥 SERVER CLEAN RUNNING");
+server.listen(process.env.PORT || 8080, "0.0.0.0", () => {
+  console.log("🔥 FINAL SERVER RUNNING");
 });
