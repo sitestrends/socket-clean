@@ -1,3 +1,4 @@
+console.log("BOOTING SERVER ONCE");
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -37,3 +38,4 @@ io.on("connection", (socket) => {
 server.listen(process.env.PORT || 8080, "0.0.0.0", () => {
   console.log("🔥 SERVER CLEAN RUNNING");
 });
+console.log("SERVER IS STILL ALIVE");
