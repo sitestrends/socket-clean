@@ -8,7 +8,12 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*"
+    origin: [
+      "http://localhost",
+      "http://127.0.0.1",
+      "https://sitesfortrends.com"
+    ],
+    methods: ["GET", "POST"]
   }
 });
 
