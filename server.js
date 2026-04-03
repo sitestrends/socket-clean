@@ -3,28 +3,27 @@ const http = require("http");
 const { Server } = require("socket.io");
 
 const app = express();
-
 const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
     origin: "*"
-  },
-  transports: ["websocket", "polling"]
+  }
 });
 
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
   socket.on("register", (username) => {
-    console.log("REGISTER:", username);
     socket.username = username;
+    console.log("REGISTER:", username, socket.id);
   });
 
   socket.on("send_message", (data) => {
     console.log("MESSAGE:", data);
 
     io.emit("receive_message", {
+      id: socket.id,
       username: socket.username || "NO_NAME",
       message: data.message
     });
@@ -36,5 +35,5 @@ io.on("connection", (socket) => {
 });
 
 server.listen(process.env.PORT || 8080, "0.0.0.0", () => {
-  console.log("🔥 FINAL SERVER RUNNING");
+  console.log("🔥 SERVER CLEAN RUNNING");
 });
