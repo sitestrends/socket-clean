@@ -8,7 +8,19 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 8080;
 
 const io = new Server(server, {
-  cors: { origin: "*" }
+  cors: {
+    origin: ["http://localhost", "https://sitesfortrends.com"],
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+
+const app = express();
+
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "*");
+  next();
 });
 
 io.on("connection", (socket) => {
