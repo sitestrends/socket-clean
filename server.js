@@ -7,27 +7,38 @@ const server = http.createServer(app);
 
 const PORT = process.env.PORT || 8080;
 
-// Socket.io setup
 const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
+  cors: { origin: "*" }
 });
 
 io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+  console.log("CONNECTED:", socket.id);
 
+  // ✅ REGISTER USER
+  socket.on("register", (username) => {
+    console.log("REGISTER EVENT RECEIVED:", username);
+
+    if (!username) {
+      console.log("⚠️ NO USERNAME RECEIVED");
+      return;
+    }
+
+    socket.username = username;
+  });
+
+  // ✅ SEND MESSAGE
   socket.on("send_message", (data) => {
-    io.emit("receive_message", data);
+    console.log("MESSAGE RECEIVED:", data);
+
+    io.emit("receive_message", {
+      username: socket.username || "NO_NAME",
+      message: data.message
+    });
   });
 
   socket.on("disconnect", () => {
-    console.log("User disconnected:", socket.id);
+    console.log("DISCONNECTED:", socket.id);
   });
 });
 
-// MUST be at bottom
-server.listen(PORT, "0.0.0.0", () => {
-  console.log("Server running on port", PORT);
-});
+console.log("🔥 NEW SERVER VERSION LIVE");
