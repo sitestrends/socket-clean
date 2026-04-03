@@ -14,21 +14,13 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
-  // ✅ REGISTER USER
   socket.on("register", (username) => {
-    console.log("REGISTER EVENT RECEIVED:", username);
-
-    if (!username) {
-      console.log("⚠️ NO USERNAME RECEIVED");
-      return;
-    }
-
+    console.log("REGISTER:", username);
     socket.username = username;
   });
 
-  // ✅ SEND MESSAGE
   socket.on("send_message", (data) => {
-    console.log("MESSAGE RECEIVED:", data);
+    console.log("MESSAGE:", data);
 
     io.emit("receive_message", {
       username: socket.username || "NO_NAME",
@@ -41,4 +33,6 @@ io.on("connection", (socket) => {
   });
 });
 
-console.log("🔥 NEW SERVER VERSION LIVE");
+server.listen(PORT, "0.0.0.0", () => {
+  console.log("🔥 SERVER CLEAN RUNNING");
+});
