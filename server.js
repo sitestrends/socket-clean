@@ -7,8 +7,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
+    origin: "*"
   }
 });
 
@@ -17,24 +16,21 @@ io.on("connection", (socket) => {
 
   socket.on("register", (username) => {
     socket.username = username;
-    console.log("REGISTER:", username, socket.id);
+    console.log("REGISTER:", username);
+    
+  socket.emit("registered"); // ✅ confirm back
   });
 
   socket.on("send_message", (data) => {
-    console.log("MESSAGE:", data);
+    console.log("MESSAGE:", data.message);
 
     io.emit("receive_message", {
-      id: socket.id,
-      username: socket.username || "NO_NAME",
+      user: socket.username || "NO_NAME",
       message: data.message
     });
   });
-
-  socket.on("disconnect", () => {
-    console.log("DISCONNECTED:", socket.id);
-  });
 });
 
-server.listen(process.env.PORT || 3000, () => {
-  console.log("🔥 SERVER CLEAN RUNNING");
+server.listen(3000, () => {
+  console.log("SERVER RUNNING");
 });
