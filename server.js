@@ -16,26 +16,49 @@ const io = new Server(server, {
   }
 });
 
+const users = {};
+
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
   socket.on("register", (username) => {
-    socket.username = username;
-    console.log("REGISTER:", username);
-    
-  socket.emit("registered"); // ✅ confirm back
+    socket.username = username || "NO_NAME";
+    users[username] = socket.id;
+
+    console.log("REGISTER:", username, socket.id);
+
+    socket.emit("registered"); // ✅ important
   });
 
   socket.on("send_message", (data) => {
-    console.log("MESSAGE:", data.message);
-
+    console.log("MESSAGE:", socket.username, data.message);
     io.emit("receive_message", {
-      user: socket.username || "NO_NAME",
-      message: data.message
+      user: socket.username, // ✅ FIXED (no more undefined)
+      message: data.message,
+      id: socket.id
     });
   });
-});
 
-server.listen(3000, () => {
-  console.log("SERVER RUNNING");
+  socket.on("private_message", ({ to, message }) => {
+    console.log("PRIVATE ATTEMPT:", to, message);
+
+    const targetSocketId = users[to];
+
+    if (!targetSocketId) {
+      console.log("USER NOT FOUND:", to);
+      return;
+    }
+
+    io.to(targetSocketId).emit("receive_private", {
+      from: socket.username,
+      message: message
+    });
+
+    console.log("PRIVATE SENT:", socket.username, "→", to);
+  });
+});
+// ✅ IMPORTANT
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log("Running on port", PORT);
 });
