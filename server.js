@@ -8,7 +8,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://sitesfortrends.com",
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
