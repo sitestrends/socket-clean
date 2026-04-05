@@ -1,3 +1,4 @@
+const users = {};
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -15,8 +16,12 @@ const io = new Server(server, {
     credentials: true
   }
 });
-
-const users = {};
+// ✅ CORS FIX
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "*");
+  next();
+});
 
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
