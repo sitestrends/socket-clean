@@ -7,7 +7,8 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*"
+    origin: "*",
+    methods: ["GET", "POST"]
   }
 });
 
@@ -17,21 +18,22 @@ io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
   // ✅ REGISTER USER
-  socket.on("register", (username) => {
-    socket.username = username;
-    users[username] = socket.id;
+socket.on("register", (userId) => {
+  socket.userId = userId;
+  users[userId] = socket.id;
 
-    console.log("REGISTER:", username, socket.id);
+  console.log("REGISTER:", userId);
 
-    socket.emit("registered");
-  });
+  // 🔥 SEND UPDATED USER LIST
+  io.emit("user_list", Object.keys(users));
+});
 
   // ✅ PUBLIC MESSAGE
   socket.on("send_message", (data) => {
     console.log("MESSAGE:", data.message);
 
     io.emit("receive_message", {
-      userId: socket.username,
+      id: socket.username,
       username: socket.username,
       message: data.message,
       time: new Date().toISOString()
@@ -46,7 +48,7 @@ io.on("connection", (socket) => {
 
     if (targetSocketId) {
       io.to(targetSocketId).emit("receive_message", {
-        userId: socket.username,
+        id: socket.username,
         username: socket.username,
         message: data.message,
         time: new Date().toISOString(),
@@ -59,16 +61,16 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("disconnect", () => {
-    console.log("DISCONNECTED:", socket.id);
-
-    for (let user in users) {
-      if (users[user] === socket.id) {
-        delete users[user];
-        break;
-      }
+socket.on("disconnect", () => {
+  for (let id in users) {
+    if (users[id] === socket.id) {
+      delete users[id];
+      break;
     }
-  });
+  }
+
+  io.emit("user_list", Object.keys(users));
+});
 });
 
 const PORT = process.env.PORT || 3000;
