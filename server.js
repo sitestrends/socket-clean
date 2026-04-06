@@ -33,7 +33,7 @@ socket.on("register", (userId) => {
     console.log("MESSAGE:", data.message);
 
     io.emit("receive_message", {
-  user: socket.userId,        // ✅ legacy support
+//  user: socket.userId,        // ✅ legacy support
   userId: socket.userId,      // ✅ new
   username: socket.userId,    // ✅ new
   message: data.message,
@@ -56,8 +56,8 @@ socket.on("register", (userId) => {
 
     if (targetSocketId) {
       io.to(targetSocketId).emit("receive_message", {
-        user: socket.userId,
-        userId: socket.id,
+      //  user: socket.userId,
+        userId: socket.userId,
         username: socket.userId,
         message: data.message,
         time: new Date().toISOString(),
