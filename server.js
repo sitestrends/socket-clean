@@ -56,12 +56,20 @@ socket.on("register", (userId) => {
 
     if (targetSocketId) {
       io.to(targetSocketId).emit("receive_message", {
+        user: socket.userId,
+        userId: socket.userId,
+        username: socket.userId,
+        message: data.message,
+        time: new Date().toISOString(),
+        private: true
+      });
+    /*  io.to(targetSocketId).emit("receive_message", {
         id: socket.username,
         username: socket.username,
         message: data.message,
         time: new Date().toISOString(),
         private: true
-      });
+      });*/
 
       console.log("PRIVATE SENT:", socket.username, "→", data.to);
     } else {
