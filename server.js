@@ -19,13 +19,12 @@ io.on("connection", (socket) => {
 
   // ✅ REGISTER USER
 socket.on("register", (userId) => {
+  userId = String(userId); // ✅ FORCE STRING
+
   socket.userId = userId;
   users[userId] = socket.id;
 
-  console.log("REGISTER:", userId);
-
-  // 🔥 SEND UPDATED USER LIST
-  io.emit("user_list", Object.keys(users));
+  console.log("REGISTER:", userId, socket.id);
 });
 
   // ✅ PUBLIC MESSAGE
@@ -49,10 +48,11 @@ socket.on("register", (userId) => {
   });
 
   // ✅ PRIVATE MESSAGE
-  socket.on("private_message", (data) => {
-  const targetSocketId = users[data.to];
+ socket.on("private_message", (data) => {
+  const targetId = String(data.to); // ✅ FORCE STRING
+  const targetSocketId = users[targetId];
 
-  console.log("PRIVATE ATTEMPT:", socket.userId, "→", data.to, data.message);
+  console.log("PRIVATE ATTEMPT:", socket.userId, "→", targetId);
 
   if (targetSocketId) {
 
@@ -65,16 +65,13 @@ socket.on("register", (userId) => {
       private: true
     };
 
-    // ✅ SEND TO RECEIVER
     io.to(targetSocketId).emit("receive_message", messageData);
-
-    // ✅ SEND BACK TO SENDER (THIS FIXES YOUR PROBLEM)
     socket.emit("receive_message", messageData);
 
-    console.log("PRIVATE SENT:", socket.userId, "→", data.to);
+    console.log("PRIVATE SENT:", socket.userId, "→", targetId);
 
   } else {
-    console.log("USER NOT FOUND:", data.to);
+    console.log("USER NOT FOUND:", targetId);
   }
 });
 /*  socket.on("private_message", (data) => {
