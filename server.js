@@ -33,8 +33,6 @@ socket.on("register", (username) => {
 const users = {};
 
 
-const users = {};
-
 io.on("connection", (socket) => {
 
   socket.on("register", (username) => {
