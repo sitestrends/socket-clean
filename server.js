@@ -35,7 +35,7 @@ socket.on("register", (userId) => {
     io.emit("receive_message", {
   user: socket.userId,        // ✅ legacy support
   userId: socket.userId,      // ✅ new
-//  username: socket.userId,    // ✅ new
+  username: socket.userId,    // ✅ new
   message: data.message,
   time: new Date().toISOString()
 });
@@ -50,6 +50,34 @@ socket.on("register", (userId) => {
 
   // ✅ PRIVATE MESSAGE
   socket.on("private_message", (data) => {
+  const targetSocketId = users[data.to];
+
+  console.log("PRIVATE ATTEMPT:", socket.userId, "→", data.to, data.message);
+
+  if (targetSocketId) {
+
+    const messageData = {
+      user: socket.userId,
+      userId: socket.userId,
+      username: socket.userId,
+      message: data.message,
+      time: new Date().toISOString(),
+      private: true
+    };
+
+    // ✅ SEND TO RECEIVER
+    io.to(targetSocketId).emit("receive_message", messageData);
+
+    // ✅ SEND BACK TO SENDER (THIS FIXES YOUR PROBLEM)
+    socket.emit("receive_message", messageData);
+
+    console.log("PRIVATE SENT:", socket.userId, "→", data.to);
+
+  } else {
+    console.log("USER NOT FOUND:", data.to);
+  }
+});
+/*  socket.on("private_message", (data) => {
     const targetSocketId = users[data.to];
 
     console.log("PRIVATE ATTEMPT:", data.to, data.message);
@@ -58,7 +86,7 @@ socket.on("register", (userId) => {
       io.to(targetSocketId).emit("receive_message", {
         user: socket.userId,
         userId: socket.userId,
-      //  username: socket.userId,
+        username: socket.userId,
         message: data.message,
         time: new Date().toISOString(),
         private: true
@@ -69,13 +97,13 @@ socket.on("register", (userId) => {
         message: data.message,
         time: new Date().toISOString(),
         private: true
-      });*/
+      });*//*
 
       console.log("PRIVATE SENT:", socket.username, "→", data.to);
     } else {
       console.log("USER NOT FOUND:", data.to);
     }
-  });
+  });*/
 
 socket.on("disconnect", () => {
   for (let id in users) {
