@@ -30,9 +30,6 @@ socket.on("register", (username) => {
   socket.emit("registered");
 });
 
-const users = {};
-
-
 io.on("connection", (socket) => {
 
   socket.on("register", (username) => {
