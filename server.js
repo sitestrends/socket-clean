@@ -24,7 +24,7 @@ socket.on("register", (userId) => {
   socket.userId = userId;
   users[userId] = socket.id;
 
-  console.log("REGISTER:", userId, socket.id);
+  console.log("REGISTER:", userId);//, socket.id);
 });
 
   // ✅ PUBLIC MESSAGE
@@ -48,31 +48,29 @@ socket.on("register", (userId) => {
   });
 
   // ✅ PRIVATE MESSAGE
- socket.on("private_message", (data) => {
-  const targetId = String(data.to); // ✅ FORCE STRING
+socket.on("private_message", (data) => {
+  const targetId = String(data.to);
   const targetSocketId = users[targetId];
 
-  console.log("PRIVATE ATTEMPT:", socket.userId, "→", targetId);
-
-  if (targetSocketId) {
-
-    const messageData = {
-      user: socket.userId,
-      userId: socket.userId,
-      username: socket.userId,
-      message: data.message,
-      time: new Date().toISOString(),
-      private: true
-    };
-
-    io.to(targetSocketId).emit("receive_message", messageData);
-    socket.emit("receive_message", messageData);
-
-    console.log("PRIVATE SENT:", socket.userId, "→", targetId);
-
-  } else {
+  if (!targetSocketId) {
     console.log("USER NOT FOUND:", targetId);
+    return;
   }
+
+  const messageData = {
+    user: socket.userId,
+    message: data.message,
+    time: new Date().toISOString(),
+    private: true
+  };
+
+  // send to receiver
+  io.to(targetSocketId).emit("receive_message", messageData);
+
+  // send back to sender (THIS FIXES YOUR “no sent message” issue)
+  socket.emit("receive_message", messageData);
+
+  console.log("PRIVATE SENT:", socket.userId, "→", targetId);
 });
 /*  socket.on("private_message", (data) => {
     const targetSocketId = users[data.to];
