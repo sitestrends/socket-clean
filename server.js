@@ -33,11 +33,19 @@ socket.on("register", (userId) => {
     console.log("MESSAGE:", data.message);
 
     io.emit("receive_message", {
+  user: socket.userId,        // ✅ legacy support
+  userId: socket.userId,      // ✅ new
+  username: socket.userId,    // ✅ new
+  message: data.message,
+  time: new Date().toISOString()
+});
+/*
+    io.emit("receive_message", {
       id: socket.username,
       username: socket.username,
       message: data.message,
       time: new Date().toISOString()
-    });
+    });*/
   });
 
   // ✅ PRIVATE MESSAGE
