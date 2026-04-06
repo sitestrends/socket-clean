@@ -56,8 +56,8 @@ socket.on("register", (userId) => {
 
     if (targetSocketId) {
       io.to(targetSocketId).emit("receive_message", {
-        user: socket.id,
-        userId: socket.userId,
+        user: socket.userId,
+        userId: socket.id,
         username: socket.userId,
         message: data.message,
         time: new Date().toISOString(),
