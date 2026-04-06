@@ -47,7 +47,8 @@ io.on("connection", (socket) => {
     io.emit("receive_message", {
       user: socket.username,// || "NO_NAME", // ✅ fallback
       message: data.message
-      id: socket.id // this shows user1 & user2 username
+      //id: socket.id // this shows user1 & user2 username
+      id: socket.id
     });
   });
 
