@@ -78,6 +78,12 @@ io.on("connection", (socket) => {
     socket.emit("conversation_data", msgs);
   });
 
+  // ✅ MESSAGE
+    socket.on('message', (message) => {
+    console.log(`Received message: ${message}`);
+    io.emit('message', message);
+  });
+
   // ✅ DISCONNECT
   socket.on("disconnect", () => {
     console.log("DISCONNECTED:", socket.id);
