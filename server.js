@@ -16,34 +16,8 @@ const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
 
-// Example: Create a room name like "chat_userA_userB"
-//const privateRoom = [userId, agentId].sort().join('_');
-//socket.join(privateRoom);
-const privateRoom = [users, ADMIN_ID].sort().join('_');
-
-
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
-
-socket.join(privateRoom);
-    // When a user starts a private chat
-  socket.on('startPrivateChat', ({ userId, targetId }) => {
-    const roomName = [userId, targetId].sort().join('_');
-    socket.join(roomName);
-    console.log(`User ${userId} joined private room: ${roomName}`);
-  });
-
-  // Sending a message specifically to that private room
-  socket.on('sendPrivateMessage', ({ senderId, receiverId, message }) => {
-    const roomName = [senderId, receiverId].sort().join('_');
-    
-    // io.to(roomName) ensures only those two see the message
-    io.to(roomName).emit('newPrivateMessage', {
-      senderId,
-      message,
-      timestamp: new Date()
-    });
-  });
 
   // ✅ REGISTER USER
   socket.on("register", (userId) => {
