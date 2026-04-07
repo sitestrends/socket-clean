@@ -1,3 +1,5 @@
+
+
 const users = {};
 const express = require("express");
 const http = require("http");
@@ -13,28 +15,25 @@ const io = new Server(server, {
   }
 });
 
-socket.on("send_message", (data) => {
-  io.emit("receive_message", {
-    user: socket.username,   // ✅ MUST be "user"
-    message: data.message,
-    id: socket.id
-  });
+console.log("SENDING:", {
+  userId: socket.username,
+  time: new Date().toISOString()
+});
+// ✅ IMPORTANT
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log("Running on port", PORT);
+});
+server.listen(process.env.PORT || 3000, () => {
+  console.log("🔥 SERVER CLEAN RUNNING");
 });
 
-socket.on("register", (username) => {
-  socket.username = username;
-
-  console.log("REGISTER:", username, socket.id);
-
-  // ✅ tell client it's ready
-  socket.emit("registered");
+app.get("/", (req, res) => {
+  res.send("🔥 Socket server is live");
 });
-
-function broadcastUsers() {
-  io.emit("user_list", Object.keys(users));
-}
 
 io.on("connection", (socket) => {
+  console.log("CONNECTED:", socket.id);
 
   socket.on("register", (username) => {
     socket.username = username;
@@ -44,20 +43,27 @@ io.on("connection", (socket) => {
 
     socket.emit("registered"); // ✅ important
   });
-
+  socket.on("send_message", (data) => {
+  io.emit("receive_message", {
+    userId: socket.username,
+    username: socket.username,
+    message: data.message,
+    time: new Date().toISOString() // ✅ ADD THIS
+  });
+  
+/*
   socket.on("send_message", (data) => {
     console.log("MESSAGE:", socket.username, data.message);
-
     io.emit("receive_message", {
-      user: socket.username,// || "NO_NAME", // ✅ fallback
-      message: data.message
-    //  id: socket.id // this shows user1 & user2 username
-      
-    });
+      user: socket.username, // ✅ FIXED (no more undefined)
+      message: data.message,
+      id: socket.id
+    });*/
   });
 
+});
   socket.on("private_message", ({ to, message }) => {
-    console.log("PRIVATE ATTEMPT:", socket.username, "→", to);
+    console.log("PRIVATE ATTEMPT:", to, message);
 
     const targetSocketId = users[to];
 
@@ -65,19 +71,38 @@ io.on("connection", (socket) => {
       console.log("USER NOT FOUND:", to);
       return;
     }
-
+  if (targetSocketId) {
+    io.to(targetSocketId).emit("receive_message", {
+      userId: socket.username,
+      username: socket.username,
+      message: data.message,
+      time: new Date().toISOString() // ✅ ADD THIS
+    });
+  }
     io.to(targetSocketId).emit("receive_private", {
       from: socket.username,
-      message
+      message: message
     });
+
+    console.log("PRIVATE SENT:", socket.username, "→", to);
   });
+/*
+socket.on("private_message", (data) => {
+  const targetSocketId = users[data.to];
 
-});
-
-server.listen(process.env.PORT || 3000, () => {
-  console.log("🔥 SERVER CLEAN RUNNING");
-});
-
-app.get("/", (req, res) => {
-  res.send("🔥 Socket server is live");
-});
+  if (targetSocketId) {
+    io.to(targetSocketId).emit("receive_message", {
+      userId: socket.username,
+      username: socket.username,
+      message: data.message,
+      time: new Date().toISOString() // ✅ ADD THIS
+    });
+  }
+});*/
+/*
+io.emit("receive_message", {
+  userId: socket.username,      // or socket.userid
+  username: socket.username,     // display name
+  message: data.message,
+  time: new Date().toISOString()
+});*/
