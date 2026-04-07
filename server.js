@@ -19,7 +19,7 @@ const ADMIN_ID = "1";
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
-  // ✅ REGISTER
+  // ✅ REGISTER USER
   socket.on("register", (userId) => {
     userId = String(userId);
 
@@ -31,17 +31,13 @@ io.on("connection", (socket) => {
     io.emit("user_list", Object.keys(users));
   });
 
-  // ✅ PRIVATE MESSAGE (INBOX SYSTEM)
+  // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
   socket.on("private_message", (data) => {
     const senderId = String(socket.userId);
 
-    let targetId;
-
-    if (senderId !== ADMIN_ID) {
-      targetId = ADMIN_ID; // users → admin only
-    } else {
-      targetId = String(data.to); // admin chooses
-    }
+    let targetId = senderId === ADMIN_ID
+      ? String(data.to)     // admin chooses
+      : ADMIN_ID;           // users forced to admin
 
     const targetSocketId = users[targetId];
 
@@ -51,36 +47,35 @@ io.on("connection", (socket) => {
     }
 
     const msg = {
-      user: senderId,
+      from: senderId,
+      to: targetId,
       message: data.message,
       time: new Date().toISOString()
     };
 
-    // 🔥 conversation key (user side, not admin)
-    const convoId = senderId === ADMIN_ID ? targetId : senderId;
+    // 🔥 store per user (inbox thread)
+    const convoKey = senderId === ADMIN_ID ? targetId : senderId;
 
-    if (!conversations[convoId]) {
-      conversations[convoId] = [];
+    if (!conversations[convoKey]) {
+      conversations[convoKey] = [];
     }
 
-    conversations[convoId].push(msg);
+    conversations[convoKey].push(msg);
 
     // send to receiver + sender
     io.to(targetSocketId).emit("receive_message", msg);
     socket.emit("receive_message", msg);
 
-    console.log("PRIVATE:", senderId, "→", targetId, data.message);
+    console.log("MSG:", senderId, "→", targetId, data.message);
   });
 
-  // ✅ LOAD CONVERSATION
+  // ✅ LOAD CONVERSATION (ADMIN)
   socket.on("load_conversation", (userId) => {
     userId = String(userId);
 
     const msgs = conversations[userId] || [];
 
     socket.emit("conversation_data", msgs);
-
-    console.log("LOAD CONVO:", userId);
   });
 
   // ✅ DISCONNECT
@@ -98,7 +93,6 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log("SERVER RUNNING ON", PORT);
+server.listen(process.env.PORT || 3000, () => {
+  console.log("SERVER RUNNING");
 });
