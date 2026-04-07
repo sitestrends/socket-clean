@@ -19,7 +19,7 @@ const ADMIN_ID = "1";
 // Example: Create a room name like "chat_userA_userB"
 //const privateRoom = [userId, agentId].sort().join('_');
 //socket.join(privateRoom);
-const privateRoom = [senderId, ADMIN_ID].sort().join('_');
+const privateRoom = [users, ADMIN_ID].sort().join('_');
 socket.join(privateRoom);
 
 
