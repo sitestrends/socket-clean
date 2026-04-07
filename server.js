@@ -21,7 +21,7 @@ app.get("/", (req, res) => {
 });
 
 console.log("SENDING:", {
-  users: socket.users,
+  userId: socket.userId,
   time: new Date().toISOString()
 });
 
