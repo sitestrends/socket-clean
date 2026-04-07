@@ -16,7 +16,7 @@ const io = new Server(server, {
 });
 
 console.log("SENDING:", {
-  userId: socket.username,
+  userId: socket.userId,
   time: new Date().toISOString()
 });
 // ✅ IMPORTANT
