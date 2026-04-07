@@ -16,9 +16,7 @@ const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
 
-app.get("/", (req, res) => {
-  res.send("🔥 Socket server is live");
-});
+
 
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
