@@ -47,7 +47,7 @@ io.on("connection", (socket) => {
     username: socket.username,
     message: data.message,
     time: new Date().toISOString() // ✅ ADD THIS
-  });
+    });
   });
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
   socket.on("private_message", (data) => {
