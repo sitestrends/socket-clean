@@ -15,8 +15,11 @@ const io = new Server(server, {
 const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
+
 // Example: Create a room name like "chat_userA_userB"
-const privateRoom = [userId, agentId].sort().join('_');
+//const privateRoom = [userId, agentId].sort().join('_');
+//socket.join(privateRoom);
+const privateRoom = [senderId, ADMIN_ID].sort().join('_');
 socket.join(privateRoom);
 
 
@@ -41,7 +44,7 @@ io.on("connection", (socket) => {
       timestamp: new Date()
     });
   });
-  
+
   // ✅ REGISTER USER
   socket.on("register", (userId) => {
     userId = String(userId);
