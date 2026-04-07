@@ -20,11 +20,6 @@ app.get("/", (req, res) => {
   res.send("🔥 Socket server is live");
 });
 
-console.log("SENDING:", {
-  userId: socket.username,
-  time: new Date().toISOString()
-});
-
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
