@@ -39,7 +39,7 @@ io.on("connection", (socket) => {
 
   socket.on("send_message", (data) => {
   io.emit("receive_message", {
-    userId: socket.username,
+    userId: socket.userId,
     username: socket.userid,
     message: data.message,
     time: new Date().toISOString() // ✅ ADD THIS
