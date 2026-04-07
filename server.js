@@ -16,6 +16,15 @@ const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
 
+app.get("/", (req, res) => {
+  res.send("🔥 Socket server is live");
+});
+
+console.log("SENDING:", {
+  userId: socket.username,
+  time: new Date().toISOString()
+});
+
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
@@ -29,6 +38,14 @@ io.on("connection", (socket) => {
     console.log("REGISTER:", userId);
 
     io.emit("user_list", Object.keys(users));
+  });
+
+  socket.on("send_message", (data) => {
+  io.emit("receive_message", {
+    userId: socket.username,
+    username: socket.username,
+    message: data.message,
+    time: new Date().toISOString() // ✅ ADD THIS
   });
 
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
