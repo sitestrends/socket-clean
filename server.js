@@ -30,6 +30,10 @@ socket.on("register", (username) => {
   socket.emit("registered");
 });
 
+function broadcastUsers() {
+  io.emit("user_list", Object.keys(users));
+}
+
 io.on("connection", (socket) => {
 
   socket.on("register", (username) => {
@@ -47,8 +51,8 @@ io.on("connection", (socket) => {
     io.emit("receive_message", {
       user: socket.username,// || "NO_NAME", // ✅ fallback
       message: data.message
-      //id: socket.id // this shows user1 & user2 username
-      id: socket.id
+    //  id: socket.id // this shows user1 & user2 username
+      
     });
   });
 
