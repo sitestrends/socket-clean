@@ -20,12 +20,12 @@ const ADMIN_ID = "1";
 //const privateRoom = [userId, agentId].sort().join('_');
 //socket.join(privateRoom);
 const privateRoom = [users, ADMIN_ID].sort().join('_');
-socket.join(privateRoom);
 
 
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
+socket.join(privateRoom);
     // When a user starts a private chat
   socket.on('startPrivateChat', ({ userId, targetId }) => {
     const roomName = [userId, targetId].sort().join('_');
