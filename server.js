@@ -1,6 +1,3 @@
-
-
-const users = {};
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -15,94 +12,75 @@ const io = new Server(server, {
   }
 });
 
-console.log("SENDING:", {
-  userId: socket.userId,
-  time: new Date().toISOString()
-});
-// ✅ IMPORTANT
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log("Running on port", PORT);
-});
-server.listen(process.env.PORT || 3000, () => {
-  console.log("🔥 SERVER CLEAN RUNNING");
-});
-
-app.get("/", (req, res) => {
-  res.send("🔥 Socket server is live");
-});
+const users = {}; // userId -> socketId
+const ADMIN_ID = "1";
 
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
-  socket.on("register", (username) => {
-    socket.username = username;
-    users[username] = socket.id;
+  // ✅ REGISTER
+  socket.on("register", (userId) => {
+    userId = String(userId);
 
-    console.log("REGISTER:", username, socket.id);
+    socket.userId = userId;
+    users[userId] = socket.id;
 
-    socket.emit("registered"); // ✅ important
-  });
-  socket.on("send_message", (data) => {
-  io.emit("receive_message", {
-    userId: socket.username,
-    username: socket.username,
-    message: data.message,
-    time: new Date().toISOString() // ✅ ADD THIS
-  });
-  
-/*
-  socket.on("send_message", (data) => {
-    console.log("MESSAGE:", socket.username, data.message);
-    io.emit("receive_message", {
-      user: socket.username, // ✅ FIXED (no more undefined)
-      message: data.message,
-      id: socket.id
-    });*/
+    console.log("REGISTER:", userId, socket.id);
+
+    io.emit("user_list", Object.keys(users));
   });
 
-});
-  socket.on("private_message", ({ to, message }) => {
-    console.log("PRIVATE ATTEMPT:", to, message);
+  // ✅ PRIVATE MESSAGE (ADMIN SYSTEM)
+  socket.on("private_message", (data) => {
+    const senderId = String(socket.userId);
 
-    const targetSocketId = users[to];
+    let targetId;
+
+    if (senderId !== ADMIN_ID) {
+      targetId = ADMIN_ID; // users can only message admin
+    } else {
+      targetId = String(data.to); // admin chooses user
+    }
+
+    const targetSocketId = users[targetId];
 
     if (!targetSocketId) {
-      console.log("USER NOT FOUND:", to);
+      console.log("USER NOT FOUND:", targetId);
       return;
     }
-  if (targetSocketId) {
-    io.to(targetSocketId).emit("receive_message", {
-      userId: socket.username,
-      username: socket.username,
-      message: data.message,
-      time: new Date().toISOString() // ✅ ADD THIS
-    });
-  }
-    io.to(targetSocketId).emit("receive_private", {
-      from: socket.username,
-      message: message
-    });
 
-    console.log("PRIVATE SENT:", socket.username, "→", to);
+    const messageData = {
+      user: senderId,
+      message: data.message,
+      time: new Date().toISOString(),
+      private: true
+    };
+
+    // send to receiver
+    io.to(targetSocketId).emit("receive_message", messageData);
+
+    // send back to sender (so sender sees their own message)
+    socket.emit("receive_message", messageData);
+
+    console.log("PRIVATE:", senderId, "→", targetId, data.message);
   });
-/*
-socket.on("private_message", (data) => {
-  const targetSocketId = users[data.to];
 
-  if (targetSocketId) {
-    io.to(targetSocketId).emit("receive_message", {
-      userId: socket.username,
-      username: socket.username,
-      message: data.message,
-      time: new Date().toISOString() // ✅ ADD THIS
-    });
-  }
-});*/
-/*
-io.emit("receive_message", {
-  userId: socket.username,      // or socket.userid
-  username: socket.username,     // display name
-  message: data.message,
-  time: new Date().toISOString()
-});*/
+  // ✅ DISCONNECT
+  socket.on("disconnect", () => {
+    console.log("DISCONNECTED:", socket.id);
+
+    for (let id in users) {
+      if (users[id] === socket.id) {
+        delete users[id];
+        break;
+      }
+    }
+
+    io.emit("user_list", Object.keys(users));
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+  console.log("SERVER RUNNING ON", PORT);
+});
