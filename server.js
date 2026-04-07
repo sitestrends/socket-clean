@@ -40,7 +40,7 @@ io.on("connection", (socket) => {
     io.emit("user_list", Object.keys(users));
   });
 
-  
+
   socket.on("send_message", (data) => {
   io.emit("receive_message", {
     userId: socket.username,
@@ -48,7 +48,7 @@ io.on("connection", (socket) => {
     message: data.message,
     time: new Date().toISOString() // ✅ ADD THIS
   });
-  
+  });
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
   socket.on("private_message", (data) => {
     const senderId = String(socket.userId);
