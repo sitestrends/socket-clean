@@ -20,7 +20,10 @@ app.get("/", (req, res) => {
   res.send("🔥 Socket server is live");
 });
 
-
+console.log("SENDING:", {
+  userId: socket.username,
+  time: new Date().toISOString()
+});
 
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
@@ -36,16 +39,16 @@ io.on("connection", (socket) => {
 
     io.emit("user_list", Object.keys(users));
   });
-/*
+
+  
   socket.on("send_message", (data) => {
   io.emit("receive_message", {
-    userId: socket.userId,
-    username: socket.userid,
+    userId: socket.username,
+    username: socket.username,
     message: data.message,
     time: new Date().toISOString() // ✅ ADD THIS
-    });
-  });*/
-
+  });
+  
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
   socket.on("private_message", (data) => {
     const senderId = String(socket.userId);
