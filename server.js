@@ -20,6 +20,10 @@ app.get("/", (req, res) => {
   res.send("🔥 Socket server is live");
 });
 
+console.log("SENDING:", {
+  users: socket.users,
+  time: new Date().toISOString()
+});
 
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
@@ -38,8 +42,8 @@ io.on("connection", (socket) => {
 
   socket.on("send_message", (data) => {
   io.emit("receive_message", {
-    userId: socket.ADMIN_ID,
-//    username: socket.userid,
+    userId: socket.username,
+    username: socket.userid,
     message: data.message,
     time: new Date().toISOString() // ✅ ADD THIS
     });
