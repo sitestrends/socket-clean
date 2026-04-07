@@ -12,7 +12,8 @@ const io = new Server(server, {
   }
 });
 
-const users = {}; // userId -> socketId
+const users = {};           // userId -> socketId
+const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
 
 io.on("connection", (socket) => {
@@ -25,21 +26,21 @@ io.on("connection", (socket) => {
     socket.userId = userId;
     users[userId] = socket.id;
 
-    console.log("REGISTER:", userId, socket.id);
+    console.log("REGISTER:", userId);
 
     io.emit("user_list", Object.keys(users));
   });
 
-  // ✅ PRIVATE MESSAGE (ADMIN SYSTEM)
+  // ✅ PRIVATE MESSAGE (INBOX SYSTEM)
   socket.on("private_message", (data) => {
     const senderId = String(socket.userId);
 
     let targetId;
 
     if (senderId !== ADMIN_ID) {
-      targetId = ADMIN_ID; // users can only message admin
+      targetId = ADMIN_ID; // users → admin only
     } else {
-      targetId = String(data.to); // admin chooses user
+      targetId = String(data.to); // admin chooses
     }
 
     const targetSocketId = users[targetId];
@@ -49,20 +50,37 @@ io.on("connection", (socket) => {
       return;
     }
 
-    const messageData = {
+    const msg = {
       user: senderId,
       message: data.message,
-      time: new Date().toISOString(),
-      private: true
+      time: new Date().toISOString()
     };
 
-    // send to receiver
-    io.to(targetSocketId).emit("receive_message", messageData);
+    // 🔥 conversation key (user side, not admin)
+    const convoId = senderId === ADMIN_ID ? targetId : senderId;
 
-    // send back to sender (so sender sees their own message)
-    socket.emit("receive_message", messageData);
+    if (!conversations[convoId]) {
+      conversations[convoId] = [];
+    }
+
+    conversations[convoId].push(msg);
+
+    // send to receiver + sender
+    io.to(targetSocketId).emit("receive_message", msg);
+    socket.emit("receive_message", msg);
 
     console.log("PRIVATE:", senderId, "→", targetId, data.message);
+  });
+
+  // ✅ LOAD CONVERSATION
+  socket.on("load_conversation", (userId) => {
+    userId = String(userId);
+
+    const msgs = conversations[userId] || [];
+
+    socket.emit("conversation_data", msgs);
+
+    console.log("LOAD CONVO:", userId);
   });
 
   // ✅ DISCONNECT
