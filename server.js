@@ -16,8 +16,6 @@ const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
 
-
-
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
@@ -33,7 +31,7 @@ io.on("connection", (socket) => {
     io.emit("user_list", Object.keys(users));
   });
 
-
+//  <<<< Added
   socket.on("send_message", (data) => {
   io.emit("receive_message", {
     userId: socket.userId,
@@ -49,7 +47,7 @@ io.on("connection", (socket) => {
     let targetId = senderId === ADMIN_ID
       ? String(data.to)     // admin chooses
       : ADMIN_ID;           // users forced to admin
-
+      
     const targetSocketId = users[targetId];
 
     if (!targetSocketId) {
@@ -74,7 +72,11 @@ io.on("connection", (socket) => {
     conversations[convoKey].push(msg);
 
     // send to receiver + sender
-    io.to(targetSocketId).emit("receive_message", msg);
+    io.to(targetSocketId).emit("receive_message", {
+      msg,
+      userId: socket.username,
+      username: socket.username
+  });
     socket.emit("receive_message", msg);
 
     console.log("MSG:", senderId, "→", targetId, data.message);
@@ -89,7 +91,7 @@ io.on("connection", (socket) => {
     socket.emit("conversation_data", msgs);
   });
 
-  // ✅ MESSAGE
+  // ✅ MESSAGE       <<<<  Added
     socket.on('message', (message) => {
     console.log(`Received message: ${message}`);
     io.emit('message', message);
