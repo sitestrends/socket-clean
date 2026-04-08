@@ -32,14 +32,14 @@ io.on("connection", (socket) => {
   });
 
 //  <<<< Added
-  socket.on("send_message", (data) => {
+ /* socket.on("send_message", (data) => {
   io.emit("receive_message", {
     userId: socket.userId,
     username: socket.username,
     message: data.message,
     time: new Date().toISOString() // ✅ ADD THIS
     });
-  });
+  });*/
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
   socket.on("private_message", (data) => {
     const senderId = String(socket.userId);
