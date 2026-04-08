@@ -16,16 +16,16 @@ const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
 
-socket.on("load_conversation", (userId) => {
+io.on("connection", (socket) => {
+  console.log("CONNECTED:", socket.id);
+
+  socket.on("load_conversation", (userId) => {
   console.log("SERVER LOADING:", userId);
   
   const msgs = conversations[userId] || [];
 
   socket.emit("conversation_data", msgs);
 });
-
-io.on("connection", (socket) => {
-  console.log("CONNECTED:", socket.id);
 
   // ✅ REGISTER USER
   socket.on("register", (userId) => {
