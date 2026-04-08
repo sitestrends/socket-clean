@@ -47,7 +47,7 @@ io.on("connection", (socket) => {
     let targetId = senderId === ADMIN_ID
       ? String(data.to)     // admin chooses
       : ADMIN_ID;           // users forced to admin
-      
+
     const targetSocketId = users[targetId];
 
     if (!targetSocketId) {
@@ -87,11 +87,11 @@ io.on("connection", (socket) => {
     socket.emit("conversation_data", msgs);
   });
 
-  // ✅ MESSAGE       <<<<  Added
-    socket.on('message', (message) => {
+  // ✅ MESSAGE       <<<<  
+  /*  socket.on('message', (message) => {
     console.log(`Received message: ${message}`);
     io.emit('message', message);
-  });
+  });*/
 
   // ✅ DISCONNECT
   socket.on("disconnect", () => {
