@@ -72,11 +72,7 @@ io.on("connection", (socket) => {
     conversations[convoKey].push(msg);
 
     // send to receiver + sender
-    io.to(targetSocketId).emit("receive_message", {
-      msg,
-      userId: socket.username,
-      username: socket.username
-  });
+    io.to(targetSocketId).emit("receive_message", msg);
     socket.emit("receive_message", msg);
 
     console.log("MSG:", senderId, "→", targetId, data.message);
