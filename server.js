@@ -24,8 +24,8 @@ io.on("connection", (socket) => {
   
   const msgs = conversations[userId] || [];
 
-  socket.emit("conversation_data", msgs);*/
-});
+  socket.emit("conversation_data", msgs);
+});*/
 
   // ✅ REGISTER USER
   socket.on("register", (userId) => {
