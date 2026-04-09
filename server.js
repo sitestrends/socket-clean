@@ -70,6 +70,12 @@ io.on("connection", (socket) => {
 
     conversations[convoKey].push(msg);
 
+    fetch("C:/xampp/htdocs/realtime/save_messages.php", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(msg)
+    });
+
     // send to receiver + sender
     io.to(targetSocketId).emit("receive_message", msg);
     socket.emit("receive_message", msg);
