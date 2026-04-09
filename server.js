@@ -81,9 +81,9 @@ io.on("connection", (socket) => {
   socket.on("private_message", (data) => {
     const sendersId = String(socket.username);
 
-    let targetId = sendersId === USER_ID
+    let targetId = sendersId === userId
       ? String(data.to)     // admin chooses
-      : USER_ID;           // users forced to admin
+      : userId;           // users forced to admin
 
     const targetSocketId = users[targetId];
 
@@ -100,7 +100,7 @@ io.on("connection", (socket) => {
     };
 
     // 🔥 store per user (inbox thread)
-    const convoKey = sendersId === USER_ID ? targetId : sendersId;
+    const convoKey = sendersId === userId ? targetId : sendersId;
 
     if (!conversations[convoKey]) {
       conversations[convoKey] = [];
