@@ -41,6 +41,12 @@ io.on("connection", (socket) => {
 
     const targetSocketId = users[targetId];
 
+    fetch("http://localhost/realtime/save_message.php", {   //  <<<< Added
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(msg)
+    });
+
     if (!targetSocketId) {
       console.log("USER NOT FOUND:", targetId);
       return;
