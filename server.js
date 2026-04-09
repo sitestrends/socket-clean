@@ -19,12 +19,12 @@ const ADMIN_ID = "1";
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
-  socket.on("load_conversation", (userId) => {
+ /* socket.on("load_conversation", (userId) => {
   console.log("SERVER LOADING:", userId);
   
   const msgs = conversations[userId] || [];
 
-  socket.emit("conversation_data", msgs);
+  socket.emit("conversation_data", msgs);*/
 });
 
   // ✅ REGISTER USER
