@@ -19,14 +19,6 @@ const ADMIN_ID = "1";
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
- /* socket.on("load_conversation", (userId) => {
-  console.log("SERVER LOADING:", userId);
-  
-  const msgs = conversations[userId] || [];
-
-  socket.emit("conversation_data", msgs);
-});*/
-
   // ✅ REGISTER USER
   socket.on("register", (userId) => {
     userId = String(userId);
@@ -75,44 +67,6 @@ io.on("connection", (socket) => {
     socket.emit("receive_message", msg);
 
     console.log("MSG:", senderId, "→", targetId, data.message);
-  });
-  
-  // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
-  socket.on("private_message", (data) => {
-    const sendersId = String(socket.username);
-
-    let targetId = sendersId === userId
-      ? String(data.to)     // admin chooses
-      : userId;           // users forced to admin
-
-    const targetSocketId = users[targetId];
-
-    if (!targetSocketId) {
-      console.log("USER NOT FOUND:", targetId);
-      return;
-    }
-
-    const msg = {
-      from: sendersId,
-      to: targetId,
-      message: data.message,
-      time: new Date().toISOString()
-    };
-
-    // 🔥 store per user (inbox thread)
-    const convoKey = sendersId === userId ? targetId : sendersId;
-
-    if (!conversations[convoKey]) {
-      conversations[convoKey] = [];
-    }
-
-    conversations[convoKey].push(msg);
-
-    // send to receiver + sender
-    io.to(targetSocketId).emit("receive_message", msg);
-    socket.emit("receive_message", msg);
-
-    console.log("MSG:", sendersId, "→", targetId, data.message);
   });
 
   // ✅ LOAD CONVERSATION (ADMIN)
