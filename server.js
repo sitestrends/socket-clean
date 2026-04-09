@@ -70,17 +70,49 @@ io.on("connection", (socket) => {
 
     conversations[convoKey].push(msg);
 
-    fetch("C:/xampp/htdocs/realtime/save_messages.php", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(msg)
-    });
-
     // send to receiver + sender
     io.to(targetSocketId).emit("receive_message", msg);
     socket.emit("receive_message", msg);
 
     console.log("MSG:", senderId, "→", targetId, data.message);
+  });
+  
+  // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
+  socket.on("private_message", (data) => {
+    const sendersId = String(socket.username);
+
+    let targetId = sendersId === USER_ID
+      ? String(data.to)     // admin chooses
+      : USER_ID;           // users forced to admin
+
+    const targetSocketId = users[targetId];
+
+    if (!targetSocketId) {
+      console.log("USER NOT FOUND:", targetId);
+      return;
+    }
+
+    const msg = {
+      from: sendersId,
+      to: targetId,
+      message: data.message,
+      time: new Date().toISOString()
+    };
+
+    // 🔥 store per user (inbox thread)
+    const convoKey = sendersId === USER_ID ? targetId : sendersId;
+
+    if (!conversations[convoKey]) {
+      conversations[convoKey] = [];
+    }
+
+    conversations[convoKey].push(msg);
+
+    // send to receiver + sender
+    io.to(targetSocketId).emit("receive_message", msg);
+    socket.emit("receive_message", msg);
+
+    console.log("MSG:", sendersId, "→", targetId, data.message);
   });
 
   // ✅ LOAD CONVERSATION (ADMIN)
