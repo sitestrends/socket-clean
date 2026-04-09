@@ -41,7 +41,7 @@ io.on("connection", (socket) => {
 
     const targetSocketId = users[targetId];
 
-    fetch("C:xampp/htdocs/realtime/assets/save_message.php", {   //  <<<< Added
+    fetch("C:xampp/htdocs/realtime/assets/save_messages.php", {   //  <<<< Added
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(msg)
