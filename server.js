@@ -13,7 +13,7 @@ const io = new Server(server, {
 });
 
 const users = {};           // userId -> socketId
-const conversations = {};   // userId -> messages[]
+//const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
 
 io.on("connection", (socket) => {
