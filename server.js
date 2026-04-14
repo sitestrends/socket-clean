@@ -16,6 +16,23 @@ const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
 
+const mysql = require("mysql2");
+
+const db = mysql.createConnection({
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "sites"
+});
+
+db.connect(err => {
+  if (err) {
+    console.error("❌ DB CONNECT ERROR:", err);
+  } else {
+    console.log("✅ MySQL Connected");
+  }
+});
+
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
@@ -68,6 +85,21 @@ io.on("connection", (socket) => {
 
     console.log("MSG:", senderId, "→", targetId, data.message);
   });
+
+  ///   Typing Indicator
+    socket.on("typing", (data) => {
+    const targetSocket = users[data.to];
+    if (targetSocket) {
+      io.to(targetSocket).emit("typing", { from: socket.userId });
+    }
+  });
+
+    socket.on("stop_typing", (data) => {
+      const targetSocket = users[data.to];
+      if (targetSocket) {
+        io.to(targetSocket).emit("stop_typing");
+      }
+    });
 
   // ✅ LOAD CONVERSATION (ADMIN)
   socket.on("load_conversation", (userId) => {
