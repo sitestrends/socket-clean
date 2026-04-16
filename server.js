@@ -37,7 +37,7 @@ io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
   // ✅ REGISTER USER
-  socket.on("register", (userId) => {
+/*  socket.on("register", (userId) => {
     userId = String(userId);
 
     socket.userId = userId;
@@ -46,7 +46,20 @@ io.on("connection", (socket) => {
     console.log("REGISTER:", userId);
 
     io.emit("user_list", Object.keys(users));
-  });
+  });*/
+
+  socket.on("register", (userId) => {
+    console.log("👤 REGISTER:", userId);
+
+    socket.userId = String(userId);
+    users[socket.userId] = socket.id;
+
+    console.log("🟢 USERS:", users);
+
+    // 🔥 BROADCAST UPDATED USER LIST
+    io.emit("user_list", Object.keys(users));
+      });
+
 
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
   socket.on("private_message", (data) => {
@@ -112,17 +125,15 @@ io.on("connection", (socket) => {
 
   // ✅ DISCONNECT
   socket.on("disconnect", () => {
-    console.log("DISCONNECTED:", socket.id);
+    console.log("❌ DISCONNECT:", socket.userId);
 
-    for (let id in users) {
-      if (users[id] === socket.id) {
-        delete users[id];
-        break;
-      }
+    if (socket.userId) {
+      delete users[socket.userId];
     }
 
     io.emit("user_list", Object.keys(users));
   });
+
 });
 
 server.listen(process.env.PORT || 3000, () => {
