@@ -87,6 +87,12 @@ io.on("connection", (socket) => {
   });
 
   ///   Typing Indicator
+  const typingEl = document.getElementById("typing");
+
+  if (typingEl) {
+    typingEl.innerText = "Typing...";
+  }
+
     socket.on("typing", (data) => {
     const targetSocket = users[data.to];
     if (targetSocket) {
