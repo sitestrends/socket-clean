@@ -88,6 +88,12 @@ io.on("connection", (socket) => {
 
   ///   Typing Indicator
     socket.on("typing", (data) => {
+    io.to(data.to).emit("typing", {
+      from: data.from
+    });
+  });
+  
+    socket.on("typing", (data) => {
     const targetSocket = users[data.to];
     if (targetSocket) {
       io.to(targetSocket).emit("typing", { from: socket.userId });
