@@ -7,7 +7,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://sitesfortrends.com/dash.php",
     methods: ["GET", "POST"]
   }
 });
@@ -92,7 +92,7 @@ io.on("connection", (socket) => {
       from: data.from
     });
   });
-  
+
     socket.on("typing", (data) => {
     const targetSocket = users[data.to];
     if (targetSocket) {
