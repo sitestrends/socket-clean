@@ -9,7 +9,8 @@ const io = new Server(server, {
   cors: {
     origin: "https://sitesfortrends.com/dash.php",
     methods: ["GET", "POST"]
-  }
+  },
+  transports: ["websocket", "polling"]
 });
 
 const users = {};           // userId -> socketId
