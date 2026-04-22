@@ -64,7 +64,8 @@ function updateBadge() {
 
     console.log("REGISTER:", userId);
 
-    io.emit("user_list", Object.keys(users));
+    //io.emit("user_list", Object.keys(users));
+    io.emit("user_online", userId);
   });
 
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
