@@ -42,6 +42,19 @@ io.on("connection", (socket) => {
     console.log("Admin joined admin_room");
 });
 
+let unreadCount = 0;
+
+function updateBadge() {
+    const badge = document.getElementById("unreadBadge");
+
+    if (unreadCount > 0) {
+        badge.style.display = "inline-block";
+        badge.textContent = unreadCount;
+    } else {
+        badge.style.display = "none";
+    }
+}
+
   // ✅ REGISTER USER
   socket.on("register", (userId) => {
     userId = String(userId);
@@ -98,25 +111,13 @@ io.on("connection", (socket) => {
   });
 
   ///   Typing Indicator
-    socket.on("typing", (data) => {
-    io.to(data.to).emit("typing", {
-      from: data.from
-    });
-  });
+socket.on("typing", (data) => {
+    io.to("admin_room").emit("user_typing", data);
+});
 
-    socket.on("typing", (data) => {
-    const targetSocket = users[data.to];
-    if (targetSocket) {
-      io.to(targetSocket).emit("typing", { from: socket.userId });
-    }
-  });
-
-    socket.on("stop_typing", (data) => {
-      const targetSocket = users[data.to];
-      if (targetSocket) {
-        io.to(targetSocket).emit("stop_typing");
-      }
-    });
+socket.on("stop_typing", (data) => {
+    io.to("admin_room").emit("user_stop_typing", data);
+});
 
   // ✅ LOAD CONVERSATION (ADMIN)
   socket.on("load_conversation", (userId) => {
