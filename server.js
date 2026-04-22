@@ -112,11 +112,15 @@ function updateBadge() {
 
   ///   Typing Indicator
 socket.on("typing", (data) => {
+    // data = { sender_id, receiver_id }
+
     io.to("admin_room").emit("user_typing", data);
+    io.to(data.sender_id).emit("user_typing", data); // optional if user needs feedback
 });
 
 socket.on("stop_typing", (data) => {
     io.to("admin_room").emit("user_stop_typing", data);
+    io.to(data.sender_id).emit("user_stop_typing", data);
 });
 
   // ✅ LOAD CONVERSATION (ADMIN)
