@@ -134,19 +134,6 @@ socket.on("stop_typing", (data) => {
   });
 
   // ✅ DISCONNECT
-/*  socket.on("disconnect", () => {
-    console.log("DISCONNECTED:", socket.id);
-
-    for (let id in users) {
-      if (users[id] === socket.id) {
-        delete users[id];
-        break;
-      }
-    }
-
-    io.emit("user_list", Object.keys(users));
-  });   */
-  
 socket.on("disconnect", () => {
     if (socket.userId) {
         io.emit("user_offline", socket.userId);
