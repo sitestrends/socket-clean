@@ -134,7 +134,7 @@ socket.on("stop_typing", (data) => {
   });
 
   // ✅ DISCONNECT
-  socket.on("disconnect", () => {
+/*  socket.on("disconnect", () => {
     console.log("DISCONNECTED:", socket.id);
 
     for (let id in users) {
@@ -146,6 +146,11 @@ socket.on("stop_typing", (data) => {
 
     io.emit("user_list", Object.keys(users));
   });
+});*/
+socket.on("disconnect", () => {
+    if (socket.userId) {
+        io.emit("user_offline", socket.userId);
+    }
 });
 
 server.listen(process.env.PORT || 3000, () => {
