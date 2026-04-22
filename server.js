@@ -37,6 +37,11 @@ db.connect(err => {
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
+  socket.on("join_admin", () => {
+    socket.join("admin_room");
+    console.log("Admin joined admin_room");
+});
+
   // ✅ REGISTER USER
   socket.on("register", (userId) => {
     userId = String(userId);
@@ -84,7 +89,12 @@ io.on("connection", (socket) => {
     io.to(targetSocketId).emit("receive_message", msg);
     socket.emit("receive_message", msg);
 
-    console.log("MSG:", senderId, "→", targetId, data.message);
+  //  console.log("MSG:", senderId, "→", targetId, data.message);
+      console.log("MSG:", data.sender_id, "→", data.receiver_id, data.message);
+
+    // ✅ ADMIN ALERT (ADD THIS)
+    console.log("Emitting to admin_room");
+    io.to("admin_room").emit("new_message_alert", data);
   });
 
   ///   Typing Indicator
