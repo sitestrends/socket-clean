@@ -145,12 +145,13 @@ socket.on("stop_typing", (data) => {
     }
 
     io.emit("user_list", Object.keys(users));
-  });
-});*/
+  });   */
+  
 socket.on("disconnect", () => {
     if (socket.userId) {
         io.emit("user_offline", socket.userId);
     }
+});
 });
 
 server.listen(process.env.PORT || 3000, () => {
