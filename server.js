@@ -9,63 +9,26 @@ const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"]
-  },
-  transports: ["websocket", "polling"]
+  }
 });
 
 const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
 
-const mysql = require("mysql2");
-
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "sites"
-});
-
-db.connect(err => {
-  if (err) {
-    console.error("❌ DB CONNECT ERROR:", err);
-  } else {
-    console.log("✅ MySQL Connected");
-  }
-});
-
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
-  //admin joins room
-  socket.on("join_admin", () => {
-    socket.join("admin_room");
-    console.log("Admin joined admin_room");
-});
-
-socket.on("get_users", () => {
-  console.log("GET USERS REQUESTED");
-    const users = ["136", "200"]; // or from DB
-
-    socket.emit("user_list", users);
-});
-
-let unreadCount = 0;
-
-function updateBadge() {
-    const badge = document.getElementById("unreadBadge");
-
-    if (unreadCount > 0) {
-        badge.style.display = "inline-block";
-        badge.textContent = unreadCount;
-    } else {
-        badge.style.display = "none";
-    }
-}
 
   // ✅ REGISTER USER
   socket.on("register", (userId) => {
-      socket.userId = String(userId);
-      socket.join(String(userId)); // REQUIRED
+    userId = String(userId);
+
+    socket.userId = userId;
+    users[userId] = socket.id;
+
+    console.log("REGISTER:", userId);
+
+    io.emit("user_list", Object.keys(users));
   });
 
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
@@ -103,29 +66,7 @@ function updateBadge() {
     io.to(targetSocketId).emit("receive_message", msg);
     socket.emit("receive_message", msg);
 
-  //  console.log("MSG:", senderId, "→", targetId, data.message);
-      console.log("MSG:", data.sender, "→", data.receiver, data.message);
-
-    // ✅ ADMIN ALERT (ADD THIS)
-    console.log("Emitting to admin_room");
-    io.to("admin_room").emit("new_message_alert", data);
-  });
-
-    ///   Typing Indicator
-  socket.on("typing", (data) => {
-      const { sender, receiver } = data;
-
-      io.to(receiver).emit("user_typing", {
-          sender
-      });
-  });
-
-    socket.on("stop_typing", (data) => {
-      const { sender, receiver } = data;
-
-      io.to(receiver).emit("user_stop_typing", {
-          sender
-      });
+    console.log("MSG:", senderId, "→", targetId, data.message);
   });
 
   // ✅ LOAD CONVERSATION (ADMIN)
@@ -139,9 +80,16 @@ function updateBadge() {
 
   // ✅ DISCONNECT
   socket.on("disconnect", () => {
-      if (socket.userId) {
-          io.emit("user_offline", socket.userId);
+    console.log("DISCONNECTED:", socket.id);
+
+    for (let id in users) {
+      if (users[id] === socket.id) {
+        delete users[id];
+        break;
       }
+    }
+
+    io.emit("user_list", Object.keys(users));
   });
 });
 
