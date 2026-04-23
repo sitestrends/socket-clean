@@ -20,10 +20,10 @@ const ADMIN_ID = "1";
 const mysql = require("mysql2");
 
 const db = mysql.createConnection({
-  host: "45.55.62.141",
-  user: "cvaateanrh",
-  password: "Zarjen12",
-  database: "cvaateanrh"
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "sites"
 });
 
 db.connect(err => {
@@ -42,34 +42,22 @@ db.connect(err => {
     console.log("Admin joined admin_room");
 });*/
 io.on("connection", (socket) => {
-    // register user
+
     socket.on("register", (userId) => {
         users[userId] = socket.id;
-        console.log("REGISTERED:", userId);
-    });
-
-    // 🔥 ADD THIS (YOU ARE MISSING THIS)
-    socket.on("get_users", () => {
-        console.log("GET USERS HIT");
-
-        const usersList = Object.keys(users);
-        socket.emit("user_list", usersList);
-    });
-/*    socket.on("register", (userId) => {
-        users[userId] = socket.id;
     });
 
     socket.on("get_users", () => {
         const usersList = Object.keys(users);
         socket.emit("user_list", usersList);
-    });*/
+    });
 
 });
 
-/*socket.on("get_users", () => {
+socket.on("get_users", () => {
     console.log("GET USERS HIT");
     socket.emit("user_list", ["136", "200"]);
-});*/
+});
 /*socket.on("get_users", () => {
   console.log("GET USERS REQUESTED");
     const users = ["136", "200"]; // or from DB
@@ -104,9 +92,9 @@ function updateBadge() {
   });*/
 
 
-/*socket.on("register", (userId) => {
+socket.on("register", (userId) => {
     users[userId] = socket.id;
-});*/
+});
 
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
   socket.on("private_message", (data) => {
@@ -190,6 +178,7 @@ function updateBadge() {
           io.emit("user_offline", socket.userId);
       }
   });
+});
 
 server.listen(process.env.PORT || 3000, () => {
   console.log("SERVER RUNNING");
