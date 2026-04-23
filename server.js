@@ -1,5 +1,6 @@
 
 console.log("SERVER STARTED");
+  console.log("🔥 SOCKET CONNECTED:", socket.id);
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -7,18 +8,10 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 
-/*const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  },
-  transports: ["websocket", "polling"]
-});*/
 const io = new Server(server, {
   cors: {
     origin: "*",
-    methods: ["GET", "POST"],
-  //  credentials: true
+  //  methods: ["GET", "POST"],
   }
 });
 
@@ -51,7 +44,6 @@ db.connect(err => {
 
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
-  console.log("🔥 SOCKET CONNECTED:", socket.id);
   console.log("SOCKET CONNECTED");
 
 const PORT = process.env.PORT || 3000;
