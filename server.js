@@ -34,12 +34,24 @@ db.connect(err => {
   }
 });
 
-io.on("connection", (socket) => {
+/*io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
   //admin joins room
   socket.on("join_admin", () => {
     socket.join("admin_room");
     console.log("Admin joined admin_room");
+});*/
+io.on("connection", (socket) => {
+
+    socket.on("register", (userId) => {
+        users[userId] = socket.id;
+    });
+
+    socket.on("get_users", () => {
+        const usersList = Object.keys(users);
+        socket.emit("user_list", usersList);
+    });
+
 });
 
 /*socket.on("get_users", () => {
