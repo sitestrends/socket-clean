@@ -1,6 +1,5 @@
 
 console.log("SERVER STARTED");
-  console.log("🔥 SOCKET CONNECTED:", socket.id);
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
