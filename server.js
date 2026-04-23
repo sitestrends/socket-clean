@@ -12,7 +12,7 @@ const io = new Server(server, {
   },
   transports: ["websocket", "polling"]
 });
-
+console.log("SERVER STARTED");
 const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
@@ -20,7 +20,7 @@ const ADMIN_ID = "1";
 const mysql = require("mysql2");
 
 const db = mysql.createConnection({
-  host: "127.0.0.1",
+  host: "localhost",
   user: "root",
   password: "",
   database: "sites"
@@ -38,7 +38,9 @@ db.connect(err => {
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
   console.log("🔥 SOCKET CONNECTED:", socket.id);
+  console.log("SOCKET CONNECTED");
 
+  
   // ✅ REGISTER
   socket.on("register", (userId) => {
     socket.userId = String(userId);
