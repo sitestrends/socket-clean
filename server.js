@@ -34,8 +34,10 @@ db.connect(err => {
   }
 });
 
+
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
+  console.log("🔥 SOCKET CONNECTED:", socket.id);
 
   // ✅ REGISTER
   socket.on("register", (userId) => {
