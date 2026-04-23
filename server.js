@@ -42,15 +42,27 @@ db.connect(err => {
     console.log("Admin joined admin_room");
 });*/
 io.on("connection", (socket) => {
-
+    // register user
     socket.on("register", (userId) => {
+        users[userId] = socket.id;
+        console.log("REGISTERED:", userId);
+    });
+
+    // 🔥 ADD THIS (YOU ARE MISSING THIS)
+    socket.on("get_users", () => {
+        console.log("GET USERS HIT");
+
+        const usersList = Object.keys(users);
+        socket.emit("user_list", usersList);
+    });
+/*    socket.on("register", (userId) => {
         users[userId] = socket.id;
     });
 
     socket.on("get_users", () => {
         const usersList = Object.keys(users);
         socket.emit("user_list", usersList);
-    });
+    });*/
 
 });
 
