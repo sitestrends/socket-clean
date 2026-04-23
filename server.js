@@ -14,10 +14,16 @@ const server = http.createServer(app);
 });*/
 const io = new Server(server, {
   cors: {
-    origin: "https://sitesfortrends.com",
+    origin: "*",
     methods: ["GET", "POST"],
-    credentials: true
+  //  credentials: true
   }
+});
+
+
+// 🔥 TEST ROUTE (important)
+app.get("/", (req, res) => {
+  res.send("SERVER IS LIVE");
 });
 
 console.log("SERVER STARTED");
@@ -42,19 +48,16 @@ db.connect(err => {
   }
 });
 
-const cors = require("cors");
-
-app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST"]
-}));
-
-
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
   console.log("🔥 SOCKET CONNECTED:", socket.id);
   console.log("SOCKET CONNECTED");
 
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+  console.log("🚀 SERVER RUNNING ON PORT", PORT);
+});
 
   // ✅ REGISTER
   socket.on("register", (userId) => {
