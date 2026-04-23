@@ -36,16 +36,18 @@ db.connect(err => {
 
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
-  socket.on("get_users", async () => {
-      console.log("GET USERS RECEIVED");
+  //admin joins room
+  socket.on("join_admin", () => {
+    socket.join("admin_room");
+    console.log("Admin joined admin_room");
+});
 
-      const users = [
-          "136",
-          "200"
-      ];
+socket.on("get_users", () => {
+  console.log("GET USERS REQUESTED");
+    const users = ["136", "200"]; // or from DB
 
-      socket.emit("user_list", users);
-  });
+    socket.emit("user_list", users);
+});
 
 let unreadCount = 0;
 
