@@ -70,10 +70,15 @@ function updateBadge() {
 }
 
   // ✅ REGISTER USER
-  socket.on("register", (userId) => {
+/*  socket.on("register", (userId) => {
       socket.userId = String(userId);
       socket.join(String(userId)); // REQUIRED
-  });
+  });*/
+  const users = {};
+
+socket.on("register", (userId) => {
+    users[userId] = socket.id;
+});
 
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
   socket.on("private_message", (data) => {
