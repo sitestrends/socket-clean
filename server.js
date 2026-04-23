@@ -1,3 +1,5 @@
+
+console.log("SERVER STARTED");
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -26,12 +28,11 @@ app.get("/", (req, res) => {
   res.send("SERVER IS LIVE");
 });
 
-console.log("SERVER STARTED");
 const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
 
-const mysql = require("mysql2");
+/*const mysql = require("mysql2");
 
 const db = mysql.createConnection({
   host: "localhost",
@@ -46,7 +47,7 @@ db.connect(err => {
   } else {
     console.log("✅ MySQL Connected");
   }
-});
+});*/
 
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
