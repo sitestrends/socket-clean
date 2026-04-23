@@ -34,13 +34,19 @@ db.connect(err => {
   }
 });
 
+const cors = require("cors");
+
+app.use(cors({
+  origin: "*",
+  methods: ["GET", "POST"]
+}));
 
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
   console.log("🔥 SOCKET CONNECTED:", socket.id);
   console.log("SOCKET CONNECTED");
 
-  
+
   // ✅ REGISTER
   socket.on("register", (userId) => {
     socket.userId = String(userId);
