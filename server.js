@@ -90,7 +90,7 @@ function updateBadge() {
       socket.userId = String(userId);
       socket.join(String(userId)); // REQUIRED
   });*/
-  const users = {};
+
 
 socket.on("register", (userId) => {
     users[userId] = socket.id;
