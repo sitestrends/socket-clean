@@ -34,75 +34,30 @@ db.connect(err => {
   }
 });
 
-/*io.on("connection", (socket) => {
-  console.log("CONNECTED:", socket.id);
-  //admin joins room
-  socket.on("join_admin", () => {
-    socket.join("admin_room");
-    console.log("Admin joined admin_room");
-});*/
 io.on("connection", (socket) => {
+  console.log("CONNECTED:", socket.id);
 
-    socket.on("register", (userId) => {
-        users[userId] = socket.id;
-    });
+  // ✅ REGISTER
+  socket.on("register", (userId) => {
+    socket.userId = String(userId);
+    users[socket.userId] = socket.id;
+    console.log("REGISTERED:", socket.userId);
+  });
 
-    socket.on("get_users", () => {
-        const usersList = Object.keys(users);
-        socket.emit("user_list", usersList);
-    });
-
-});
-
-socket.on("get_users", () => {
+  // ✅ GET USERS
+  socket.on("get_users", () => {
     console.log("GET USERS HIT");
-    socket.emit("user_list", ["136", "200"]);
-});
-/*socket.on("get_users", () => {
-  console.log("GET USERS REQUESTED");
-    const users = ["136", "200"]; // or from DB
-
-    socket.emit("user_list", users);
-});*/
-/*socket.on("get_users", () => {
-    console.log("GET USERS REQUESTED");
-
-    const usersList = Object.keys(users); // or your DB list
-
+    const usersList = Object.keys(users);
     socket.emit("user_list", usersList);
-});*/
+  });
 
-let unreadCount = 0;
-
-function updateBadge() {
-    const badge = document.getElementById("unreadBadge");
-
-    if (unreadCount > 0) {
-        badge.style.display = "inline-block";
-        badge.textContent = unreadCount;
-    } else {
-        badge.style.display = "none";
-    }
-}
-
-  // ✅ REGISTER USER
-/*  socket.on("register", (userId) => {
-      socket.userId = String(userId);
-      socket.join(String(userId)); // REQUIRED
-  });*/
-
-
-socket.on("register", (userId) => {
-    users[userId] = socket.id;
-});
-
-  // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
+  // ✅ PRIVATE MESSAGE
   socket.on("private_message", (data) => {
     const senderId = String(socket.userId);
 
     let targetId = senderId === ADMIN_ID
-      ? String(data.to)     // admin chooses
-      : ADMIN_ID;           // users forced to admin
+      ? String(data.to)
+      : ADMIN_ID;
 
     const targetSocketId = users[targetId];
 
@@ -112,20 +67,12 @@ socket.on("register", (userId) => {
     }
 
     const msg = {
-  sender: senderId,
-  sender_name: userNames[senderId] || "User " + senderId,
-  receiver: targetId,
-  message: data.message,
-  time: new Date().toISOString()
-};
-/*    const msg = {
-      from: senderId,
-      to: targetId,
+      sender: senderId,
+      receiver: targetId,
       message: data.message,
       time: new Date().toISOString()
-    };*/
+    };
 
-    // 🔥 store per user (inbox thread)
     const convoKey = senderId === ADMIN_ID ? targetId : senderId;
 
     if (!conversations[convoKey]) {
@@ -134,51 +81,32 @@ socket.on("register", (userId) => {
 
     conversations[convoKey].push(msg);
 
-    // send to receiver + sender
     io.to(targetSocketId).emit("receive_message", msg);
     socket.emit("receive_message", msg);
 
-  //  console.log("MSG:", senderId, "→", targetId, data.message);
-      console.log("MSG:", data.sender, "→", data.receiver, data.message);
-
-    // ✅ ADMIN ALERT (ADD THIS)
-    console.log("Emitting to admin_room");
-    io.to("admin_room").emit("new_message_alert", data);
+    io.to("admin_room").emit("new_message_alert", msg);
   });
 
-    ///   Typing Indicator
-  socket.on("typing", (data) => {
-      const { sender, receiver } = data;
-
-      io.to(receiver).emit("user_typing", {
-          sender
-      });
+  // ✅ TYPING
+  socket.on("typing", ({ sender, receiver }) => {
+    io.to(receiver).emit("user_typing", { sender });
   });
 
-    socket.on("stop_typing", (data) => {
-      const { sender, receiver } = data;
-
-      io.to(receiver).emit("user_stop_typing", {
-          sender
-      });
+  socket.on("stop_typing", ({ sender, receiver }) => {
+    io.to(receiver).emit("user_stop_typing", { sender });
   });
 
-  // ✅ LOAD CONVERSATION (ADMIN)
+  // ✅ LOAD CONVO
   socket.on("load_conversation", (userId) => {
-    userId = String(userId);
-
-    const msgs = conversations[userId] || [];
-
+    const msgs = conversations[String(userId)] || [];
     socket.emit("conversation_data", msgs);
   });
 
   // ✅ DISCONNECT
   socket.on("disconnect", () => {
-      if (socket.userId) {
-          io.emit("user_offline", socket.userId);
-      }
+    if (socket.userId) {
+      delete users[socket.userId];
+      io.emit("user_offline", socket.userId);
+    }
   });
-
-server.listen(process.env.PORT || 3000, () => {
-  console.log("SERVER RUNNING");
 });
