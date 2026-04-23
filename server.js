@@ -5,19 +5,21 @@ const { Server } = require("socket.io");
 const app = express();
 const server = http.createServer(app);
 
-const io = new Server(server, {
+/*const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"]
   },
   transports: ["websocket", "polling"]
-});
-/*const io = new Server(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
 });*/
+const io = new Server(server, {
+  cors: {
+    origin: "https://sitesfortrends.com",
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+
 console.log("SERVER STARTED");
 const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
