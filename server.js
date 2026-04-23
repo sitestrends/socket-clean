@@ -20,10 +20,10 @@ const ADMIN_ID = "1";
 const mysql = require("mysql2");
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "sites"
+  host: "45.55.62.141",
+  user: "cvaateanrh",
+  password: "Zarjen12",
+  database: "cvaateanrh"
 });
 
 db.connect(err => {
