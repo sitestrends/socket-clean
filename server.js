@@ -57,15 +57,8 @@ function updateBadge() {
 
   // ✅ REGISTER USER
   socket.on("register", (userId) => {
-    userId = String(userId);
-
-    socket.userId = userId;
-    users[userId] = socket.id;
-
-    console.log("REGISTER:", userId);
-
-    //io.emit("user_list", Object.keys(users));
-    io.emit("user_online", userId);
+      socket.userId = String(userId);
+      socket.join(String(userId)); // REQUIRED
   });
 
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
@@ -111,18 +104,22 @@ function updateBadge() {
     io.to("admin_room").emit("new_message_alert", data);
   });
 
-  ///   Typing Indicator
-socket.on("typing", (data) => {
-    // data = { sender_id, receiver_id }
+    ///   Typing Indicator
+  socket.on("typing", (data) => {
+      const { sender_id, receiver_id } = data;
 
-    io.to("admin_room").emit("user_typing", data);
-    io.to(data.sender_id).emit("user_typing", data); // optional if user needs feedback
-});
+      io.to(receiver_id).emit("user_typing", {
+          sender_id
+      });
+  });
 
-socket.on("stop_typing", (data) => {
-    io.to("admin_room").emit("user_stop_typing", data);
-    io.to(data.sender_id).emit("user_stop_typing", data);
-});
+    socket.on("stop_typing", (data) => {
+      const { sender_id, receiver_id } = data;
+
+      io.to(receiver_id).emit("user_stop_typing", {
+          sender_id
+      });
+  });
 
   // ✅ LOAD CONVERSATION (ADMIN)
   socket.on("load_conversation", (userId) => {
@@ -134,11 +131,11 @@ socket.on("stop_typing", (data) => {
   });
 
   // ✅ DISCONNECT
-socket.on("disconnect", () => {
-    if (socket.userId) {
-        io.emit("user_offline", socket.userId);
-    }
-});
+  socket.on("disconnect", () => {
+      if (socket.userId) {
+          io.emit("user_offline", socket.userId);
+      }
+  });
 });
 
 server.listen(process.env.PORT || 3000, () => {
