@@ -178,7 +178,6 @@ socket.on("register", (userId) => {
           io.emit("user_offline", socket.userId);
       }
   });
-});
 
 server.listen(process.env.PORT || 3000, () => {
   console.log("SERVER RUNNING");
