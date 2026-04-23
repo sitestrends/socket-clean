@@ -54,19 +54,23 @@ io.on("connection", (socket) => {
 
 });
 
+socket.on("get_users", () => {
+    console.log("GET USERS HIT");
+    socket.emit("user_list", ["136", "200"]);
+});
 /*socket.on("get_users", () => {
   console.log("GET USERS REQUESTED");
     const users = ["136", "200"]; // or from DB
 
     socket.emit("user_list", users);
 });*/
-socket.on("get_users", () => {
+/*socket.on("get_users", () => {
     console.log("GET USERS REQUESTED");
 
     const usersList = Object.keys(users); // or your DB list
 
     socket.emit("user_list", usersList);
-});
+});*/
 
 let unreadCount = 0;
 
