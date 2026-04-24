@@ -23,6 +23,7 @@ app.get("/", (req, res) => {
 const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
+let activeChatUser = null;
 
 /*const mysql = require("mysql2");
 
