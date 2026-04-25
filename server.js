@@ -9,38 +9,23 @@ const io = new Server(server, {
   cors: {
     origin: "*",
     methods: ["GET", "POST"]
-  },
-  transports: ["websocket", "polling"]
+  }
 });
 
 const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
 
-const mysql = require("mysql2");
-
-const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "sites"
-});
-
-db.connect(err => {
-  if (err) {
-    console.error("❌ DB CONNECT ERROR:", err);
-  } else {
-    console.log("✅ MySQL Connected");
-  }
-});
-
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
 
-/*  socket.on("join_admin", () => {
-    socket.join("admin_room");
-    console.log("Admin joined admin_room");
-});*/
+  socket.on("load_conversation", (userId) => {
+  console.log("SERVER LOADING:", userId);
+  
+  const msgs = conversations[userId] || [];
+
+  socket.emit("conversation_data", msgs);
+});
 
   // ✅ REGISTER USER
   socket.on("register", (userId) => {
@@ -89,34 +74,8 @@ io.on("connection", (socket) => {
     io.to(targetSocketId).emit("receive_message", msg);
     socket.emit("receive_message", msg);
 
-  //  console.log("MSG:", senderId, "→", targetId, data.message);
-      console.log("MSG:", data.sender_id, "→", data.receiver_id, data.message);
-
-    // ✅ ADMIN ALERT (ADD THIS)
-    console.log("Emitting to admin_room");
-    io.to("admin_room").emit("new_message_alert", data);
+    console.log("MSG:", senderId, "→", targetId, data.message);
   });
-
-  ///   Typing Indicator
-    socket.on("typing", (data) => {
-    io.to(data.to).emit("typing", {
-      from: data.from
-    });
-  });
-
-    socket.on("typing", (data) => {
-    const targetSocket = users[data.to];
-    if (targetSocket) {
-      io.to(targetSocket).emit("typing", { from: socket.userId });
-    }
-  });
-
-    socket.on("stop_typing", (data) => {
-      const targetSocket = users[data.to];
-      if (targetSocket) {
-        io.to(targetSocket).emit("stop_typing");
-      }
-    });
 
   // ✅ LOAD CONVERSATION (ADMIN)
   socket.on("load_conversation", (userId) => {
