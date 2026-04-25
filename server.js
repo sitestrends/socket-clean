@@ -1,5 +1,3 @@
-
-console.log("SERVER STARTED");
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -8,120 +6,146 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors: {
-    origin: "https://sitesfortrends.com",
-  //  methods: ["GET", "POST"],
-  }
-});
-
-
-// 🔥 TEST ROUTE (important)
-app.get("/", (req, res) => {
-  res.send("SERVER IS LIVE");
+cors: {
+origin: "*",
+methods: ["GET", "POST"]
+}
 });
 
 const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
-let activeChatUser = null;
 
-/*const mysql = require("mysql2");
+const mysql = require("mysql2");
 
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "sites"
+host: "localhost",
+user: "root",
+password: "",
+database: "sites"
 });
 
 db.connect(err => {
-  if (err) {
-    console.error("❌ DB CONNECT ERROR:", err);
-  } else {
-    console.log("✅ MySQL Connected");
-  }
-});*/
+if (err) {
+console.error("❌ DB CONNECT ERROR:", err);
+} else {
+console.log("✅ MySQL Connected");
+}
+});
 
 io.on("connection", (socket) => {
-  console.log("CONNECTED:", socket.id);
-  console.log("SOCKET CONNECTED");
+console.log("CONNECTED:", socket.id);
 
-const PORT = process.env.PORT || 3000;
-
-server.listen(PORT, () => {
-  console.log("🚀 SERVER RUNNING ON PORT", PORT);
-});
-
-  // ✅ REGISTER
+// ✅ REGISTER USER
+/*  socket.on("register", (userId) => {
   socket.on("register", (userId) => {
+   userId = String(userId);
+
+   socket.userId = userId;
+   users[userId] = socket.id;
+
+   console.log("REGISTER:", userId);
+
+   io.emit("user_list", Object.keys(users));
+  });
+  });*/
+
+  socket.on("register", (userId) => {
+    console.log("👤 REGISTER:", userId);
+
     socket.userId = String(userId);
     users[socket.userId] = socket.id;
-    console.log("REGISTERED:", socket.userId);
-  });
 
-  // ✅ GET USERS
-  socket.on("get_users", () => {
-    console.log("GET USERS HIT");
-    const usersList = Object.keys(users);
-    socket.emit("user_list", usersList);
-  });
+    console.log("🟢 USERS:", users);
 
-  // ✅ PRIVATE MESSAGE
-  socket.on("private_message", (data) => {
-    const senderId = String(socket.userId);
+    // 🔥 BROADCAST UPDATED USER LIST
+    io.emit("user_list", Object.keys(users));
+      });
 
-    let targetId = senderId === ADMIN_ID
-      ? String(data.to)
-      : ADMIN_ID;
 
-    const targetSocketId = users[targetId];
+// ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
+socket.on("private_message", (data) => {
+const senderId = String(socket.userId);
 
-    if (!targetSocketId) {
-      console.log("USER NOT FOUND:", targetId);
-      return;
-    }
+let targetId = senderId === ADMIN_ID
+? String(data.to)     // admin chooses
+: ADMIN_ID;           // users forced to admin
 
-    const msg = {
-      sender: senderId,
-      receiver: targetId,
-      message: data.message,
-      time: new Date().toISOString()
-    };
+const targetSocketId = users[targetId];
 
-    const convoKey = senderId === ADMIN_ID ? targetId : senderId;
+if (!targetSocketId) {
+console.log("USER NOT FOUND:", targetId);
+return;
+}
 
-    if (!conversations[convoKey]) {
-      conversations[convoKey] = [];
-    }
+const msg = {
+from: senderId,
+to: targetId,
+message: data.message,
+time: new Date().toISOString()
+};
 
-    conversations[convoKey].push(msg);
+// 🔥 store per user (inbox thread)
+const convoKey = senderId === ADMIN_ID ? targetId : senderId;
 
-    io.to(targetSocketId).emit("receive_message", msg);
-    socket.emit("receive_message", msg);
+if (!conversations[convoKey]) {
+conversations[convoKey] = [];
+}
 
-    io.to("admin_room").emit("new_message_alert", msg);
-  });
+conversations[convoKey].push(msg);
 
-  // ✅ TYPING
-  socket.on("typing", ({ sender, receiver }) => {
-    io.to(receiver).emit("user_typing", { sender });
-  });
+// send to receiver + sender
+io.to(targetSocketId).emit("receive_message", msg);
+socket.emit("receive_message", msg);
 
-  socket.on("stop_typing", ({ sender, receiver }) => {
-    io.to(receiver).emit("user_stop_typing", { sender });
-  });
+console.log("MSG:", senderId, "→", targetId, data.message);
+});
 
-  // ✅ LOAD CONVO
-  socket.on("load_conversation", (userId) => {
-    const msgs = conversations[String(userId)] || [];
-    socket.emit("conversation_data", msgs);
-  });
+///   Typing Indicator
+socket.on("typing", (data) => {
+const targetSocket = users[data.to];
+if (targetSocket) {
+io.to(targetSocket).emit("typing", { from: socket.userId });
+}
+});
 
-  // ✅ DISCONNECT
-  socket.on("disconnect", () => {
+socket.on("stop_typing", (data) => {
+const targetSocket = users[data.to];
+if (targetSocket) {
+io.to(targetSocket).emit("stop_typing");
+}
+});
+
+// ✅ LOAD CONVERSATION (ADMIN)
+socket.on("load_conversation", (userId) => {
+userId = String(userId);
+
+const msgs = conversations[userId] || [];
+
+socket.emit("conversation_data", msgs);
+});
+
+// ✅ DISCONNECT
+socket.on("disconnect", () => {
+    console.log("DISCONNECTED:", socket.id);
+    console.log("❌ DISCONNECT:", socket.userId);
+
+    for (let id in users) {
+      if (users[id] === socket.id) {
+        delete users[id];
+        break;
+      }
     if (socket.userId) {
       delete users[socket.userId];
-      io.emit("user_offline", socket.userId);
-    }
-  });
+}
+
+io.emit("user_list", Object.keys(users));
+};
+
 });
+
+server.listen(process.env.PORT || 3000, () => {
+console.log("SERVER RUNNING");
+});
+});
+
