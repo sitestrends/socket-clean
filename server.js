@@ -7,9 +7,11 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
 cors: {
-origin: "*",
+    origin: "https://sitesfortrends.com/dash.php",
+    origin: "*",
 methods: ["GET", "POST"]
-}
+},
+transports: ["websocket", "polling"]
 });
 
 const users = {};           // userId -> socketId
@@ -37,31 +39,16 @@ io.on("connection", (socket) => {
 console.log("CONNECTED:", socket.id);
 
 // ✅ REGISTER USER
-/*  socket.on("register", (userId) => {
-  socket.on("register", (userId) => {
-   userId = String(userId);
+socket.on("register", (userId) => {
+userId = String(userId);
 
-   socket.userId = userId;
-   users[userId] = socket.id;
+socket.userId = userId;
+users[userId] = socket.id;
 
-   console.log("REGISTER:", userId);
+console.log("REGISTER:", userId);
 
-   io.emit("user_list", Object.keys(users));
-  });
-  });*/
-
-  socket.on("register", (userId) => {
-    console.log("👤 REGISTER:", userId);
-
-    socket.userId = String(userId);
-    users[socket.userId] = socket.id;
-
-    console.log("🟢 USERS:", users);
-
-    // 🔥 BROADCAST UPDATED USER LIST
-    io.emit("user_list", Object.keys(users));
-      });
-
+io.emit("user_list", Object.keys(users));
+});
 
 // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
 socket.on("private_message", (data) => {
@@ -103,6 +90,12 @@ console.log("MSG:", senderId, "→", targetId, data.message);
 
 ///   Typing Indicator
 socket.on("typing", (data) => {
+io.to(data.to).emit("typing", {
+from: data.from
+});
+});
+
+socket.on("typing", (data) => {
 const targetSocket = users[data.to];
 if (targetSocket) {
 io.to(targetSocket).emit("typing", { from: socket.userId });
@@ -127,25 +120,17 @@ socket.emit("conversation_data", msgs);
 
 // ✅ DISCONNECT
 socket.on("disconnect", () => {
-    console.log("DISCONNECTED:", socket.id);
-    console.log("❌ DISCONNECT:", socket.userId);
+console.log("DISCONNECTED:", socket.id);
 
-    for (let id in users) {
-      if (users[id] === socket.id) {
-        delete users[id];
-        break;
-      }
-    if (socket.userId) {
-      delete users[socket.userId];
+for (let id in users) {
+if (users[id] === socket.id) {
+delete users[id];
+break;
+}
 }
 
 io.emit("user_list", Object.keys(users));
-};
+});
+});
 
-});
-
-server.listen(process.env.PORT || 3000, () => {
-console.log("SERVER RUNNING");
-});
-});
 
