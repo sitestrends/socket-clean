@@ -15,19 +15,24 @@ const io = new Server(server, {
 const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
-let onlineUsers = {};
+const onlineUsers = {};
 
 io.on("connection", (socket) => {
 
     // 🔑 REGISTER USER
   socket.on("register", (userId) => {
 
+    const id = String(userId);
+    
     console.log("REGISTER:", userId);
 
     socket.userId = String(userId);
 
-    onlineUsers[socket.userId] = socket.id;
+    //onlineUsers[socket.userId] = socket.id;
+    onlineUsers[id] = socket.id;
 
+    emitOnline();
+    
     // 🔥 SEND UPDATED ONLINE USERS TO EVERYONE
     io.emit("online_users", Object.keys(onlineUsers));
 /*  console.log("CONNECTED:", socket.id);
@@ -102,6 +107,19 @@ io.on("connection", (socket) => {
   // ✅ DISCONNECT
   socket.on("disconnect", () => {
 
+    if (socket.userId) {
+      delete onlineUsers[socket.userId];
+    }
+
+    emitOnline();
+  });
+
+  function emitOnline() {
+    io.emit("online_users", Object.keys(onlineUsers));
+  }
+
+  /*  socket.on("disconnect", () => {
+
     console.log("DISCONNECTED:", socket.id);
 
     if (socket.userId) {
@@ -110,7 +128,7 @@ io.on("connection", (socket) => {
 
     // 🔥 UPDATE LIST AGAIN
     io.emit("online_users", Object.keys(onlineUsers));
-  });
+  });*/
   /*  socket.on("disconnect", () => {
     console.log("DISCONNECTED:", socket.id);
 
