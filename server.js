@@ -18,7 +18,7 @@ const ADMIN_ID = "1";
 const onlineUsers = {};
 
 io.on("connection", (socket) => {
-
+console.log("ONLINE USERS SERVER:", Object.keys(onlineUsers));
     // 🔑 REGISTER USER
   socket.on("register", (userId) => {
 
