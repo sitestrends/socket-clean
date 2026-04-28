@@ -114,10 +114,11 @@ console.log("ONLINE USERS SERVER:", Object.keys(onlineUsers));
     emitOnline();
   });
 
-  function emitOnline() {
-    io.emit("online_users", Object.keys(onlineUsers));
-  }
 
+  function emitOnline() {
+    const list = Object.keys(onlineUsers).filter(id => id !== "1");
+    io.emit("online_users", list);
+  }
   /*  socket.on("disconnect", () => {
 
     console.log("DISCONNECTED:", socket.id);
