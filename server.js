@@ -15,6 +15,7 @@ const io = new Server(server, {
 const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
+let onlineUsers = {};
 
 io.on("connection", (socket) => {
   console.log("CONNECTED:", socket.id);
