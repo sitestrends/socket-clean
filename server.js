@@ -18,14 +18,26 @@ const ADMIN_ID = "1";
 let onlineUsers = {};
 
 io.on("connection", (socket) => {
-  console.log("CONNECTED:", socket.id);
+
+    // 🔑 REGISTER USER
+  socket.on("register", (userId) => {
+
+    console.log("REGISTER:", userId);
+
+    socket.userId = String(userId);
+
+    onlineUsers[socket.userId] = socket.id;
+
+    // 🔥 SEND UPDATED ONLINE USERS TO EVERYONE
+    io.emit("online_users", Object.keys(onlineUsers));
+/*  console.log("CONNECTED:", socket.id);
 
   socket.on("load_conversation", (userId) => {
   console.log("SERVER LOADING:", userId);
   
   const msgs = conversations[userId] || [];
 
-  socket.emit("conversation_data", msgs);
+  socket.emit("conversation_data", msgs);*/
 });
 
   // ✅ REGISTER USER
@@ -89,6 +101,17 @@ io.on("connection", (socket) => {
 
   // ✅ DISCONNECT
   socket.on("disconnect", () => {
+
+    console.log("DISCONNECTED:", socket.id);
+
+    if (socket.userId) {
+      delete onlineUsers[socket.userId];
+    }
+
+    // 🔥 UPDATE LIST AGAIN
+    io.emit("online_users", Object.keys(onlineUsers));
+  });
+  /*  socket.on("disconnect", () => {
     console.log("DISCONNECTED:", socket.id);
 
     for (let id in users) {
@@ -99,7 +122,7 @@ io.on("connection", (socket) => {
     }
 
     io.emit("user_list", Object.keys(users));
-  });
+  });*/
 });
 
 server.listen(process.env.PORT || 3000, () => {
