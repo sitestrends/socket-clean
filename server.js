@@ -20,42 +20,19 @@ const onlineUsers = {};
 io.on("connection", (socket) => {
 console.log("ONLINE USERS SERVER:", Object.keys(onlineUsers));
     // 🔑 REGISTER USER
-  socket.on("register", (userId) => {
+socket.on("register", (userId) => {
 
-    const id = String(userId);
-    
-    console.log("REGISTER:", userId);
+  const id = String(userId);
 
-    socket.userId = String(userId);
+  socket.userId = id;
 
-    //onlineUsers[socket.userId] = socket.id;
-    onlineUsers[id] = socket.id;
+  users[id] = socket.id;        // messaging
+  onlineUsers[id] = socket.id;  // online tracking
 
-    emitOnline();
-    
-    // 🔥 SEND UPDATED ONLINE USERS TO EVERYONE
-    io.emit("online_users", Object.keys(onlineUsers));
-/*  console.log("CONNECTED:", socket.id);
+  console.log("REGISTER:", id);
 
-  socket.on("load_conversation", (userId) => {
-  console.log("SERVER LOADING:", userId);
-  
-  const msgs = conversations[userId] || [];
-
-  socket.emit("conversation_data", msgs);*/
+  emitOnline();
 });
-
-  // ✅ REGISTER USER
-  socket.on("register", (userId) => {
-    userId = String(userId);
-
-    socket.userId = userId;
-    users[userId] = socket.id;
-
-    console.log("REGISTER:", userId);
-
-    io.emit("user_list", Object.keys(users));
-  });
 
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
   socket.on("private_message", (data) => {
@@ -105,25 +82,21 @@ console.log("ONLINE USERS SERVER:", Object.keys(onlineUsers));
   });
 
   // ✅ DISCONNECT
-  socket.on("disconnect", () => {
+socket.on("disconnect", () => {
 
-    if (socket.userId) {
-      delete onlineUsers[socket.userId];
-    }
+  if (socket.userId) {
+    delete onlineUsers[socket.userId];
+    delete users[socket.userId];
+  }
 
-    emitOnline();
-  });
+  emitOnline();
+});
 
-const adminId = "1";
+//const adminId = "1";
 
 function emitOnline() {
-  const usersOnly = Object.keys(onlineUsers).filter(id => id !== adminId);
-  const adminOnline = onlineUsers[adminId] ? true : false;
-
-  io.emit("online_users", {
-    users: usersOnly,
-    admin: adminOnline
-  });
+  const list = Object.keys(onlineUsers).filter(id => id !== ADMIN_ID);
+  io.emit("online_users", list);   // ✅ ALWAYS ARRAY
 }
   /*  socket.on("disconnect", () => {
 
