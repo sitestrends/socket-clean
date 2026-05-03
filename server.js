@@ -12,6 +12,9 @@ const io = new Server(server, {
   }
 });
 
+const cors = require("cors");
+app.use(cors());
+
 const users = {};           // userId -> socketId
 const conversations = {};   // userId -> messages[]
 const ADMIN_ID = "1";
@@ -42,19 +45,19 @@ socket.on("register", (userId) => {
 
   emitOnline();
 });
-    /*socket.on("register", (userId) => {
+//    socket.on("register", (userId) => {
 
-  const id = String(userId);
+//  const id = String(userId);
 
-  socket.userId = id;
+//  socket.userId = id;
 
-  users[id] = socket.id;        // messaging
-  onlineUsers[id] = socket.id;  // online tracking
+//  users[id] = socket.id;        // messaging
+//  onlineUsers[id] = socket.id;  // online tracking
 
-  console.log("REGISTER:", id);
+//  console.log("REGISTER:", id);
 
-  emitOnline();
-});*/
+//  emitOnline();
+//});
 
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
   socket.on("private_message", (data) => {
