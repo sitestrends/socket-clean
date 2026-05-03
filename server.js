@@ -24,6 +24,28 @@ socket.on("register", (userId) => {
 
   const id = String(userId);
 
+  // 🔥 if user already exists → disconnect old socket
+  if (users[id] && users[id] !== socket.id) {
+    const oldSocket = io.sockets.sockets.get(users[id]);
+    if (oldSocket) {
+      console.log("KILL OLD SOCKET:", id);
+      oldSocket.disconnect(true);
+    }
+  }
+
+  socket.userId = id;
+
+  users[id] = socket.id;
+  onlineUsers[id] = socket.id;
+
+  console.log("REGISTER:", id);
+
+  emitOnline();
+});
+    /*socket.on("register", (userId) => {
+
+  const id = String(userId);
+
   socket.userId = id;
 
   users[id] = socket.id;        // messaging
@@ -32,11 +54,13 @@ socket.on("register", (userId) => {
   console.log("REGISTER:", id);
 
   emitOnline();
-});
+});*/
 
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
   socket.on("private_message", (data) => {
     const senderId = String(socket.userId);
+    console.log("TARGET SOCKET:", targetSocketId);
+    console.log("ALL USERS:", users);
 
     let targetId = senderId === ADMIN_ID
       ? String(data.to)     // admin chooses
@@ -67,7 +91,11 @@ socket.on("register", (userId) => {
 
     // send to receiver + sender
     io.to(targetSocketId).emit("receive_message", msg);
-    socket.emit("receive_message", msg);
+  // send back ONLY once to sender
+if (socket.id !== targetSocketId) {
+  socket.emit("receive_message", msg);
+}
+    //  socket.emit("receive_message", msg);
 
     console.log("MSG:", senderId, "→", targetId, data.message);
   });
