@@ -47,47 +47,48 @@ console.log("REGISTER RAW:", userId);
 });
 
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
-  socket.on("private_message", (data) => {
-    const senderId = String(socket.userId);
-    console.log("TARGET SOCKET:", targetSocketId);
-    console.log("ALL USERS:", users);
+socket.on("private_message", (data) => {
 
-    let targetId = senderId === ADMIN_ID
-      ? String(data.to)     // admin chooses
-      : ADMIN_ID;           // users forced to admin
+  const senderId = String(socket.userId);
 
-    const targetSocketId = users[targetId];
+  let targetId = senderId === ADMIN_ID
+    ? String(data.to)
+    : ADMIN_ID;
 
-    if (!targetSocketId) {
-      console.log("USER NOT FOUND:", targetId);
-      return;
-    }
+  // ✅ DEFINE FIRST
+  const targetSocketId = users[targetId];
 
-    const msg = {
-      from: senderId,
-      to: targetId,
-      message: data.message,
-      time: new Date().toISOString()
-    };
+  // ✅ CHECK AFTER DEFINITION
+  if (!targetSocketId) {
+    console.log("USER NOT FOUND:", targetId);
+    return;
+  }
 
-    // 🔥 store per user (inbox thread)
-    const convoKey = senderId === ADMIN_ID ? targetId : senderId;
+  const msg = {
+    from: senderId,
+    to: targetId,
+    message: data.message,
+    time: new Date().toISOString()
+  };
 
-    if (!conversations[convoKey]) {
-      conversations[convoKey] = [];
-    }
+  // 🔥 store message
+  const convoKey = senderId === ADMIN_ID ? targetId : senderId;
 
-    conversations[convoKey].push(msg);
+  if (!conversations[convoKey]) {
+    conversations[convoKey] = [];
+  }
 
-    // send to receiver + sender
-    io.to(targetSocketId).emit("receive_message", msg);
-  // send back ONLY once to sender
-    if (socket.id !== targetSocketId) {
-      socket.emit("receive_message", msg);
-    }
+  conversations[convoKey].push(msg);
 
-    console.log("MSG:", senderId, "→", targetId, data.message);
-  });
+  // ✅ SEND (AFTER everything exists)
+  io.to(targetSocketId).emit("receive_message", msg);
+
+  if (socket.id !== targetSocketId) {
+    socket.emit("receive_message", msg);
+  }
+
+  console.log("MSG:", senderId, "→", targetId, data.message);
+});
 
   // ✅ LOAD CONVERSATION (ADMIN)
   socket.on("load_conversation", (userId) => {
