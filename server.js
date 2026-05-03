@@ -7,7 +7,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "https://sitesfortrends.com",
     methods: ["GET", "POST"]
   }
 });
@@ -24,7 +24,7 @@ io.on("connection", (socket) => {
 console.log("ONLINE USERS SERVER:", Object.keys(onlineUsers));
     // 🔑 REGISTER USER
 socket.on("register", (userId) => {
-
+console.log("REGISTER RAW:", userId);
   const id = String(userId);
 
   // 🔥 if user already exists → disconnect old socket
@@ -45,19 +45,6 @@ socket.on("register", (userId) => {
 
   emitOnline();
 });
-//    socket.on("register", (userId) => {
-
-//  const id = String(userId);
-
-//  socket.userId = id;
-
-//  users[id] = socket.id;        // messaging
-//  onlineUsers[id] = socket.id;  // online tracking
-
-//  console.log("REGISTER:", id);
-
-//  emitOnline();
-//});
 
   // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
   socket.on("private_message", (data) => {
@@ -95,10 +82,9 @@ socket.on("register", (userId) => {
     // send to receiver + sender
     io.to(targetSocketId).emit("receive_message", msg);
   // send back ONLY once to sender
-if (socket.id !== targetSocketId) {
-  socket.emit("receive_message", msg);
-}
-    //  socket.emit("receive_message", msg);
+    if (socket.id !== targetSocketId) {
+      socket.emit("receive_message", msg);
+    }
 
     console.log("MSG:", senderId, "→", targetId, data.message);
   });
