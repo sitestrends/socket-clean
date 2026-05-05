@@ -64,19 +64,12 @@ socket.on("private_message", (data) => {
     return;
   }
 
-    const msg = {
-    from: String(senderId),      // ✅ REQUIRED
-    to: String(targetId),
-    message: String(data.message || "").trim(),
-    time: new Date().toISOString(),
-    seen: 0
-  };
-/*  const msg = {
+  const msg = {
     from: senderId,
     to: targetId,
     message: data.message,
     time: new Date().toISOString()
-  };  */
+  };  
 
   // 🔥 store message
   const convoKey = senderId === ADMIN_ID ? targetId : senderId;
