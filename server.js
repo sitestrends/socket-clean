@@ -94,8 +94,14 @@ socket.on("private_message", (data) => {
   socket.on("load_conversation", (userId) => {
     userId = String(userId);
 
-    const msgs = conversations[userId] || [];
-
+//    const msgs = conversations[userId] || [];
+  const msgs = (conversations[userId] || []).map(m => ({
+    from: m.from || m.sender,
+    to: m.to || m.receiver,
+    message: m.message,
+    time: m.time || m.created_at
+  }));
+  
     socket.emit("conversation_data", msgs);
   });
 
