@@ -102,7 +102,11 @@ socket.on("private_message", (data) => {
     time: m.time || m.created_at
   }));
 
-    socket.emit("conversation_data", msgs);
+  const convoKey = (userId === "1")
+  ? activeChatUser   // admin selected user
+  : userId;          // normal user
+  socket.emit("load_conversation", convoKey);
+  //  socket.emit("conversation_data", msgs);
   });
 
   // ✅ DISCONNECT
