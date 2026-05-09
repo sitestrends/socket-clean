@@ -109,6 +109,16 @@ socket.on("private_message", (data) => {
   //  socket.emit("conversation_data", msgs);
   });
 
+  // Load Seen messages
+  socket.on("messages_seen", (data) => {
+
+  // send to the OTHER person
+  io.emit("messages_seen", {
+    from: data.from,
+    to: data.to
+  });
+
+});
   // ✅ DISCONNECT
 socket.on("disconnect", () => {
 
