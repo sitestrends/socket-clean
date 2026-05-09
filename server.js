@@ -130,7 +130,7 @@ socket.on("disconnect", () => {
   emitOnline();
 });
 
-//const adminId = "1";
+const adminId = "1";
 
 function emitOnline() {
   const list = Object.keys(onlineUsers).filter(id => id !== ADMIN_ID);
