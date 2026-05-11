@@ -43,6 +43,8 @@ console.log("REGISTER RAW:", userId);
 
   console.log("REGISTER:", id);
 
+  socket.emit("registered"); // ✅ REQUIRED
+  
   emitOnline();
 });
 
@@ -55,7 +57,7 @@ socket.on("private_message", (data) => {
     return;
   }
   console.log("SENDER ID:", socket.userId);
-  
+
   let targetId = senderId === ADMIN_ID
     ? String(data.to)
     : ADMIN_ID;
