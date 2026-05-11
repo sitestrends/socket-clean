@@ -50,7 +50,12 @@ console.log("REGISTER RAW:", userId);
 socket.on("private_message", (data) => {
 
   const senderId = String(socket.userId);
-
+  if (!socket.userId) {
+    console.log("❌ BLOCKED: user not registered");
+    return;
+  }
+  console.log("SENDER ID:", socket.userId);
+  
   let targetId = senderId === ADMIN_ID
     ? String(data.to)
     : ADMIN_ID;
@@ -136,29 +141,7 @@ function emitOnline() {
   const list = Object.keys(onlineUsers).filter(id => id !== ADMIN_ID);
   io.emit("online_users", list);   // ✅ ALWAYS ARRAY
 }
-  /*  socket.on("disconnect", () => {
 
-    console.log("DISCONNECTED:", socket.id);
-
-    if (socket.userId) {
-      delete onlineUsers[socket.userId];
-    }
-
-    // 🔥 UPDATE LIST AGAIN
-    io.emit("online_users", Object.keys(onlineUsers));
-  });*/
-  /*  socket.on("disconnect", () => {
-    console.log("DISCONNECTED:", socket.id);
-
-    for (let id in users) {
-      if (users[id] === socket.id) {
-        delete users[id];
-        break;
-      }
-    }
-
-    io.emit("user_list", Object.keys(users));
-  });*/
 });
 
 server.listen(process.env.PORT || 3000, () => {
