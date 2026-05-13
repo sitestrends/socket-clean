@@ -6,146 +6,47 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors: {
-    origin: "https://sitesfortrends.com",
-    methods: ["GET", "POST"]
-  }
+  cors: { origin: "*" }
 });
 
-const cors = require("cors");
-app.use(cors());
-
-const users = {};           // userId -> socketId
-const conversations = {};   // userId -> messages[]
-const ADMIN_ID = "1";
-const onlineUsers = {};
+const users = {}; // userId -> socketId
 
 io.on("connection", (socket) => {
-console.log("ONLINE USERS SERVER:", Object.keys(onlineUsers));
-    // 🔑 REGISTER USER
-socket.on("register", (userId) => {
-console.log("REGISTER RAW:", userId);
-  const id = String(userId);
 
-  // 🔥 if user already exists → disconnect old socket
-  if (users[id] && users[id] !== socket.id) {
-    const oldSocket = io.sockets.sockets.get(users[id]);
-    if (oldSocket) {
-      console.log("KILL OLD SOCKET:", id);
-      oldSocket.disconnect(true);
-    }
-  }
+  socket.on("register", (userId) => {
+    const id = String(userId);
+    socket.userId = id;
+    users[id] = socket.id;
 
-  socket.userId = id;
+    console.log("REGISTER:", id);
 
-  users[id] = socket.id;
-  onlineUsers[id] = socket.id;
+    io.emit("online_users", Object.keys(users));
+  });
 
-  console.log("REGISTER:", id);
+  socket.on("send_message", (data) => {
+    const { from, to, message } = data;
 
-  socket.emit("registered"); // ✅ REQUIRED
-  
-  emitOnline();
-});
+    const msg = {
+      from: String(from),
+      to: String(to),
+      message,
+      time: new Date().toISOString()
+    };
 
-  // ✅ PRIVATE MESSAGE (USERS → ADMIN ONLY)
-socket.on("private_message", (data) => {
+    const target = users[msg.to];
 
-  const senderId = String(socket.userId);
-  if (!socket.userId) {
-    console.log("❌ BLOCKED: user not registered");
-    return;
-  }
-  console.log("SENDER ID:", socket.userId);
+    if (target) io.to(target).emit("receive_message", msg);
 
-  let targetId = senderId === ADMIN_ID
-    ? String(data.to)
-    : ADMIN_ID;
-
-  // ✅ DEFINE FIRST
-  const targetSocketId = users[targetId];
-
-  // ✅ CHECK AFTER DEFINITION
-  if (!targetSocketId) {
-    console.log("USER NOT FOUND:", targetId);
-    return;
-  }
-
-  const msg = {
-    from: senderId,
-    to: targetId,
-    message: data.message,
-    time: new Date().toISOString()
-  };  
-
-  // 🔥 store message
-  const convoKey = senderId === ADMIN_ID ? targetId : senderId;
-
-  if (!conversations[convoKey]) {
-    conversations[convoKey] = [];
-  }
-
-  conversations[convoKey].push(msg);
-
-  // ✅ SEND (AFTER everything exists)
-  io.to(targetSocketId).emit("receive_message", msg);
-
-  if (socket.id !== targetSocketId) {
     socket.emit("receive_message", msg);
-  }
-
-  console.log("MSG:", senderId, "→", targetId, data.message);
-});
-
-  // ✅ LOAD CONVERSATION (ADMIN)
-  socket.on("load_conversation", (userId) => {
-    userId = String(userId);
-
-//    const msgs = conversations[userId] || [];
-  const msgs = (conversations[userId] || []).map(m => ({
-    from: m.from || m.sender,
-    to: m.to || m.receiver,
-    message: m.message,
-    time: m.time || m.created_at
-  }));
-
-  const convoKey = (userId === "1")
-  ? activeChatUser   // admin selected user
-  : userId;          // normal user
-  socket.emit("load_conversation", convoKey);
-  //  socket.emit("conversation_data", msgs);
   });
 
-  // Load Seen messages
-  socket.on("messages_seen", (data) => {
-
-  // send to the OTHER person
-  io.emit("messages_seen", {
-    from: data.from,
-    to: data.to
+  socket.on("disconnect", () => {
+    if (socket.userId) delete users[socket.userId];
+    io.emit("online_users", Object.keys(users));
   });
 
 });
-  // ✅ DISCONNECT
-socket.on("disconnect", () => {
 
-  if (socket.userId) {
-    delete onlineUsers[socket.userId];
-    delete users[socket.userId];
-  }
-
-  emitOnline();
-});
-
-const adminId = "1";
-
-function emitOnline() {
-  const list = Object.keys(onlineUsers).filter(id => id !== ADMIN_ID);
-  io.emit("online_users", list);   // ✅ ALWAYS ARRAY
-}
-
-});
-
-server.listen(process.env.PORT || 3000, () => {
-  console.log("SERVER RUNNING");
+server.listen(3000, () => {
+  console.log("Socket server running");
 });
