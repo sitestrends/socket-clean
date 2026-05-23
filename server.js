@@ -23,6 +23,12 @@ io.on("connection", (socket) => {
     io.emit("online_users", Object.keys(users));
   });
 
+  socket.on("typing", (data) => {
+  console.log("TYPING EVENT:", data);
+  socket.broadcast.emit("typing", data);
+
+  });
+
   socket.on("send_message", (data) => {
     const { from, to, message } = data;
 
