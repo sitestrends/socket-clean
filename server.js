@@ -24,8 +24,8 @@ io.on("connection", (socket) => {
   });
 
   socket.on("typing", (data) => {
-  console.log("TYPING EVENT:", data);
-  socket.broadcast.emit("typing", data);
+console.log("TYPING EVENT:", data);
+    io.emit("typing", data);
 
   });
 
