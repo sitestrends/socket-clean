@@ -16,26 +16,18 @@ io.on("connection", (socket) => {
   socket.on("register", (userId) => {
     const id = String(userId);
     socket.userId = id;
-    users[userId] = socket.id;
+    users[id] = socket.id;
 
-    console.log("REGISTER:", userId);
+    console.log("REGISTER:", id);
 
     io.emit("online_users", Object.keys(users));
   });
 
-    socket.on("typing", (data) => {
+  socket.on("typing", (data) => {
+  console.log("TYPING EVENT:", data);
+  socket.broadcast.emit("typing", data);
 
-      console.log("TYPING EVENT:", data);
-
-      const targetSocketId = users[data.to];
-
-      if (targetSocketId) {
-
-        io.to(targetSocketId).emit("typing", data);
-
-      }
-
-    });
+  });
 
   socket.on("send_message", (data) => {
     const { from, to, message } = data;
