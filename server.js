@@ -13,7 +13,7 @@ const users = {}; // userId -> socketId
 
 io.on("connection", (socket) => {
 
-  socket.on("register", (userId) => {
+/*  socket.on("register", (userId) => {
     const id = String(userId);
     socket.userId = id;
     users[id] = socket.id;
@@ -21,13 +21,37 @@ io.on("connection", (socket) => {
     console.log("REGISTER:", id);
 
     io.emit("online_users", Object.keys(users));
-  });
+  });*/
+  socket.on("register", (userId) => {
 
-  socket.on("typing", (data) => {
+  users[userId] = socket.id;
+
+  console.log("REGISTER:", userId);
+
+});
+
+/*  socket.on("typing", (data) => {
 console.log("TYPING EVENT:", data);
     io.emit("typing", data);
+  });*/
+  socket.on("typing", (data) => {
 
-  });
+  console.log("TYPING EVENT:", data);
+
+  const targetSocketId = users[data.to];
+
+  console.log("TARGET SOCKET:", targetSocketId);
+
+  if (targetSocketId) {
+
+    io.to(targetSocketId).emit("typing", {
+      from: data.from,
+      to: data.to
+    });
+
+  }
+
+});
 
   socket.on("send_message", (data) => {
     const { from, to, message } = data;
