@@ -30,6 +30,14 @@ io.on("connection", (socket) => {
 
 });
 
+socket.on("messages_seen", (data) => {
+
+  console.log("MESSAGES SEEN:", data);
+
+  io.emit("messages_seen", data);
+
+});
+
 /*  socket.on("typing", (data) => {
 console.log("TYPING EVENT:", data);
     io.emit("typing", data);
