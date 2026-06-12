@@ -33,7 +33,7 @@ io.on("connection", (socket) => {
 socket.on("messages_seen", (data) => {
 
   console.log("MESSAGES SEEN:", data);
-console.log("ABOUT TO EMIT messages_seen");
+
   io.emit("messages_seen", data);
 
 });
