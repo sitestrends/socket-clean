@@ -68,7 +68,8 @@ console.log("TYPING EVENT:", data);
       from: String(from),
       to: String(to),
       message,
-      time: new Date().toISOString()
+      time: new Date().toISOString(),
+      seen: 0
     };
 
     const target = users[msg.to];
