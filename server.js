@@ -31,11 +31,13 @@ io.on("connection", (socket) => {
 });
 
 socket.on("messages_seen", (data) => {
-
   console.log("MESSAGES SEEN:", data);
 
-  io.emit("messages_seen", data);
-
+  io.emit("messages_seen", {
+    reader: data.reader,
+    chatUser: data.chatUser,
+    affected: data.affected
+  });
 });
 
 /*  socket.on("typing", (data) => {
