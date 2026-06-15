@@ -31,18 +31,6 @@ io.on("connection", (socket) => {
 });
 
 socket.on("messages_seen", (data) => {
-
-  console.log("SEEN EVENT:", data);
-
-  setTimeout(() => {
-
-    loadChatMessages();
-
-  }, 300);
-
-});
-
-/*socket.on("messages_seen", (data) => {
   console.log("MESSAGES SEEN:", data);
 
   io.emit("messages_seen", {
@@ -50,7 +38,7 @@ socket.on("messages_seen", (data) => {
     chatUser: data.chatUser,
     affected: data.affected
   });
-}); */
+}); 
 
 /*  socket.on("typing", (data) => {
 console.log("TYPING EVENT:", data);
