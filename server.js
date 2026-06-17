@@ -23,6 +23,10 @@ users[String(userId)] = socket.id;
 
 socket.on("send_message", (data) => {
 
+console.log(
+  "SERVER SEND_MESSAGE",
+  data
+);
 
 const msg = {
   id: Date.now(),
@@ -34,6 +38,13 @@ const msg = {
 };
 
 const target = users[msg.to];
+
+console.log(
+  "TARGET USER:",
+  msg.to,
+  "SOCKET:",
+  target
+);
 
 if (target) {
 
