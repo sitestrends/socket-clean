@@ -65,6 +65,13 @@ socket.emit(
 
 socket.on("messages_seen", (data) => {
 
+console.log("MESSAGES SEEN:", data);
+
+io.emit("messages_seen", data);
+
+});
+
+/*socket.on("messages_seen", (data) => {
 
 io.emit(
   "messages_seen",
@@ -76,6 +83,6 @@ io.emit(
 );
 
 
-});
+});*/
 
 });
