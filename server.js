@@ -6,7 +6,9 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-  cors: { origin: "*" }
+cors: {
+origin: "*"
+}
 });
 
 const users = {};
@@ -15,74 +17,86 @@ io.on("connection", (socket) => {
 
 socket.on("register", (userId) => {
 
+```
+userId = String(userId);
 
-users[String(userId)] = socket.id;
+users[userId] = socket.id;
 
+console.log("REGISTER:", userId);
+
+io.emit("online_users", Object.keys(users));
+```
+
+});
+
+socket.on("typing", (data) => {
+
+```
+const target = users[String(data.to)];
+
+if (target) {
+
+  io.to(target).emit("typing", {
+    from: String(data.from)
+  });
+
+}
+```
 
 });
 
 socket.on("send_message", (data) => {
 
-console.log(
-  "SERVER SEND_MESSAGE",
-  data
-);
-
+```
 const msg = {
-  id: Date.now(),
   from: String(data.from),
   to: String(data.to),
   message: data.message,
-  seen: 0,
-  time: new Date().toISOString()
+  time: new Date().toISOString(),
+  seen: 0
 };
 
 const target = users[msg.to];
 
-console.log(
-  "TARGET USER:",
-  msg.to,
-  "SOCKET:",
-  target
-);
-
 if (target) {
-
-  io.to(target).emit(
-    "receive_message",
-    msg
-  );
-
+  io.to(target).emit("receive_message", msg);
 }
 
-socket.emit(
-  "receive_message",
-  msg
-);
-
+socket.emit("receive_message", msg);
+```
 
 });
 
 socket.on("messages_seen", (data) => {
 
-console.log("MESSAGES SEEN:", data);
-
+```
 io.emit("messages_seen", data);
+```
 
 });
 
-/*socket.on("messages_seen", (data) => {
+socket.on("disconnect", () => {
 
-io.emit(
-  "messages_seen",
-  {
-    reader: String(data.reader),
-    chatUser: String(data.chatUser),
-    ids: data.ids || []
+```
+Object.keys(users).forEach(id => {
+
+  if (users[id] === socket.id) {
+    delete users[id];
   }
-);
 
+});
 
-});*/
+io.emit("online_users", Object.keys(users));
+```
+
+});
+
+});
+
+const PORT = process.env.PORT || 3000;
+
+server.listen(PORT, () => {
+
+console.log("Server running on", PORT);
 
 });
