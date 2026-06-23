@@ -17,7 +17,7 @@ io.on("connection", (socket) => {
 
 socket.on("register", (userId) => {
 
-```
+
 userId = String(userId);
 
 users[userId] = socket.id;
@@ -25,13 +25,13 @@ users[userId] = socket.id;
 console.log("REGISTER:", userId);
 
 io.emit("online_users", Object.keys(users));
-```
+
 
 });
 
 socket.on("typing", (data) => {
 
-```
+
 const target = users[String(data.to)];
 
 if (target) {
@@ -41,13 +41,13 @@ if (target) {
   });
 
 }
-```
+
 
 });
 
 socket.on("send_message", (data) => {
 
-```
+
 const msg = {
   from: String(data.from),
   to: String(data.to),
@@ -63,21 +63,21 @@ if (target) {
 }
 
 socket.emit("receive_message", msg);
-```
+
 
 });
 
 socket.on("messages_seen", (data) => {
 
-```
+
 io.emit("messages_seen", data);
-```
+
 
 });
 
 socket.on("disconnect", () => {
 
-```
+
 Object.keys(users).forEach(id => {
 
   if (users[id] === socket.id) {
@@ -87,7 +87,7 @@ Object.keys(users).forEach(id => {
 });
 
 io.emit("online_users", Object.keys(users));
-```
+
 
 });
 
