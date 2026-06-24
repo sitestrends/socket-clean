@@ -15,7 +15,16 @@ const users = {};
 
 io.on("connection", (socket) => {
 
-socket.on("register", (userId) => {
+  socket.on("register", (userId) => {
+
+    console.log("REGISTER:", userId);
+
+    users[String(userId)] = socket.id;
+
+    console.log("USERS MAP:", users);
+
+});
+/*socket.on("register", (userId) => {
 
 
 userId = String(userId);
@@ -27,7 +36,7 @@ console.log("REGISTER:", userId);
 io.emit("online_users", Object.keys(users));
 
 
-});
+});   */
 
 socket.on("typing", (data) => {
 
