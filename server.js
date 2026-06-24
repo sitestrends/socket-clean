@@ -15,16 +15,7 @@ const users = {};
 
 io.on("connection", (socket) => {
 
-  socket.on("register", (userId) => {
-
-    users[String(userId)] = socket.id;
-
-       console.log("REGISTER:", userId);
-    console.log("SOCKET:", socket.id);
-    console.log("USERS:", users);
-
-});
-/*socket.on("register", (userId) => {
+socket.on("register", (userId) => {
 
 
 userId = String(userId);
@@ -36,7 +27,7 @@ console.log("REGISTER:", userId);
 io.emit("online_users", Object.keys(users));
 
 
-});   */
+});
 
 socket.on("typing", (data) => {
 
@@ -56,38 +47,6 @@ if (target) {
 
 socket.on("send_message", (data) => {
 
-    console.log("SEND:", data);
-
-    const msg = {
-        from: String(data.from),
-        to: String(data.to),
-        message: data.message,
-        time: new Date().toISOString(),
-        seen: 0
-    };
-
-    console.log("LOOKING FOR:", msg.to);
-    console.log("FOUND SOCKET:", users[msg.to]);
-
-    const target = users[msg.to];
-
-    if (target) {
-
-        console.log("EMITTING TO:", target);
-
-        io.to(target).emit("receive_message", msg);
-
-    } else {
-
-        console.log("TARGET NOT FOUND");
-
-    }
-
-    socket.emit("receive_message", msg);
-
-});
-/*socket.on("send_message", (data) => {
-
 
 const msg = {
   from: String(data.from),
@@ -106,7 +65,7 @@ if (target) {
 socket.emit("receive_message", msg);
 
 
-});   */
+});
 
 socket.on("messages_seen", (data) => {
 
