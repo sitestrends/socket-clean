@@ -17,11 +17,11 @@ io.on("connection", (socket) => {
 
   socket.on("register", (userId) => {
 
-    console.log("REGISTER:", userId);
-
     users[String(userId)] = socket.id;
 
-    console.log("USERS MAP:", users);
+       console.log("REGISTER:", userId);
+    console.log("SOCKET:", socket.id);
+    console.log("USERS:", users);
 
 });
 /*socket.on("register", (userId) => {
