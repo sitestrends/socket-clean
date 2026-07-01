@@ -47,6 +47,28 @@ if (target) {
 
 socket.on("send_message", (data) => {
 
+    const msg = {
+        id: Date.now().toString() + "_" + data.from,
+        from: String(data.from),
+        to: String(data.to),
+        message: data.message,
+        time: new Date().toISOString(),
+        seen: 0
+    };
+
+    const target = users[msg.to];
+
+    // Send to receiver
+    if (target) {
+        io.to(target).emit("receive_message", msg);
+    }
+
+    // Echo back to sender
+    socket.emit("receive_message", msg);
+
+});
+/*socket.on("send_message", (data) => {
+
 const msg = {
   from: String(data.from),
   to: String(data.to),
@@ -64,7 +86,7 @@ if (target) {
 socket.emit("receive_message", msg);
 
 
-});
+});   */
 
 socket.on("messages_seen", (data) => {
 
@@ -72,7 +94,7 @@ socket.on("messages_seen", (data) => {
 io.emit("messages_seen", data);
 
 
-});
+});   
 
 socket.on("disconnect", () => {
 
