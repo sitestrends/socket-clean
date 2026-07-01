@@ -45,7 +45,26 @@ if (target) {
 
 });
 
-socket.on("send_message", (data) => {
+socket.on("send_message", (msg) => {
+
+    const receiverSocket = users[msg.to];   // ✔ THIS IS REQUIRED
+
+    console.log("SEND:", msg);
+    console.log("LOOKING FOR:", msg.to);
+    console.log("FOUND SOCKET:", receiverSocket);
+
+    if (receiverSocket) {
+
+        io.to(receiverSocket).emit("receive_message", msg);
+
+    } else {
+        console.log("USER NOT ONLINE:", msg.to);
+    }
+
+    // optional echo back to sender (for consistency)
+    socket.emit("receive_message", msg);
+});
+/*socket.on("send_message", (data) => {
 const msg = {
   from: String(data.from),
   to: String(data.to),
@@ -62,7 +81,7 @@ if (target) {
 
 socket.emit("receive_message", msg);
 
-});
+});   */
 
 socket.on("message_delivered", (data) => {
 
