@@ -46,8 +46,6 @@ if (target) {
 });
 
 socket.on("send_message", (data) => {
-
-
 const msg = {
   from: String(data.from),
   to: String(data.to),
@@ -64,11 +62,21 @@ if (target) {
 
 socket.emit("receive_message", msg);
 
+});
+
+socket.on("message_delivered", (data) => {
+
+    updateMessageStatus(data.id, "delivered");
 
 });
 
-socket.on("messages_seen", (data) => {
+io.to(receiverSocket).emit("receive_message", msg);
 
+socket.emit("message_delivered", {
+    id: msg.id
+});
+
+socket.on("messages_seen", (data) => {
 
 io.emit("messages_seen", data);
 
