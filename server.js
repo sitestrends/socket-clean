@@ -47,14 +47,30 @@ if (target) {
 
 socket.on("send_message", (data) => {
 
-    const msg = {
+        const msg = {
+            id: Date.now().toString(),
+
+            from: String(data.from),
+            to: String(data.to),
+
+            message: data.message || "",
+
+            file_name: data.file_name || null,
+            file_path: data.file_path || null,
+            file_type: data.file_type || null,
+
+            time: new Date().toISOString(),
+
+            seen: 0
+        };
+  /*    const msg = {
         id: Date.now().toString() + "_" + data.from,
         from: String(data.from),
         to: String(data.to),
         message: data.message,
         time: new Date().toISOString(),
         seen: 0
-    };
+    };    */
 
     const target = users[msg.to];
 
