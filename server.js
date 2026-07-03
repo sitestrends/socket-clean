@@ -63,16 +63,11 @@ socket.on("send_message", (data) => {
 
             seen: 0
         };
-  /*    const msg = {
-        id: Date.now().toString() + "_" + data.from,
-        from: String(data.from),
-        to: String(data.to),
-        message: data.message,
-        time: new Date().toISOString(),
-        seen: 0
-    };    */
-
+console.log("SEND FILE MESSAGE:", data);
     const target = users[msg.to];
+
+console.log("TARGET USER:", msg.to);
+console.log("TARGET SOCKET:", target);
 
     // Send to receiver
     if (target) {
