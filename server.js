@@ -17,16 +17,17 @@ io.on("connection", (socket) => {
 
 socket.on("register", (userId) => {
 
+    userId = String(userId);
 
-userId = String(userId);
+    if (!users[userId]) {
+        users[userId] = new Set();
+    }
 
-users[userId] = socket.id;
+    users[userId].add(socket.id);
 
-console.log("REGISTER:", userId);
+    console.log("REGISTER:", userId);
 
-io.emit("online_users", Object.keys(users));
-
-
+    io.emit("online_users", Object.keys(users));
 });
 
 socket.on("typing", (data) => {
