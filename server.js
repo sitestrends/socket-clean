@@ -109,17 +109,14 @@ io.emit("messages_seen", data);
 
 socket.on("disconnect", () => {
 
-
-Object.keys(users).forEach(id => {
-
-  if (users[id] === socket.id) {
-    delete users[id];
+  for (let userId in users) {
+    if (users[userId] === socket.id) {
+      delete users[userId];
+      break;
+    }
   }
 
-});
-
-io.emit("online_users", Object.keys(users));
-
+  io.emit("online_users", Object.keys(users));
 
 });
 
