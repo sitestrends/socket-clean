@@ -64,21 +64,27 @@ socket.on("send_message", (data) => {
 
             seen: 0
         };
+
+    const targetSockets = users[msg.to];
+
 console.log("SEND FILE MESSAGE:", data);
-    const target = users[msg.to];
-
 console.log("TARGET USER:", msg.to);
-console.log("TARGET SOCKET:", target);
+console.log("TARGET SOCKETS:", targetSockets);
 
-    // Send to receiver
-    if (target) {
-        io.to(target).emit("receive_message", msg);
+    // Send to ALL sockets for that user
+    if (targetSockets) {
+
+        targetSockets.forEach(socketId => {
+
+            io.to(socketId).emit("receive_message", msg);
+
+        });
+
     }
+        // Echo back to sender
+        socket.emit("receive_message", msg);
 
-    // Echo back to sender
-    socket.emit("receive_message", msg);
-
-});
+    });
 /*socket.on("send_message", (data) => {
 
 const msg = {
