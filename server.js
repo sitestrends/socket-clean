@@ -108,6 +108,23 @@ socket.emit("receive_message", msg);
 
 socket.on("mark_seen", (data) => {
 
+    const from = String(data.from);
+    const to = String(data.to);
+
+    if (users[from]) {
+
+        users[from].forEach(socketId => {
+            io.to(socketId).emit("messages_seen", {
+                from,
+                to
+            });
+        });
+
+    }
+
+});
+/*socket.on("mark_seen", (data) => {
+
     const from = data.from;
     const to = data.to;
 
@@ -121,7 +138,7 @@ socket.on("mark_seen", (data) => {
         });
     }
 
-});
+});   */
 /*socket.on("messages_seen", (data) => {
 
 
