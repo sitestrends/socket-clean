@@ -106,7 +106,7 @@ socket.emit("receive_message", msg);
 
 });   */
 
-socket.on("mark_seen", (data) => {
+/*socket.on("mark_seen", (data) => {
 
     const from = String(data.from);
     const to = String(data.to);
@@ -122,7 +122,7 @@ socket.on("mark_seen", (data) => {
 
     }
 
-});
+});   */
 /*socket.on("mark_seen", (data) => {
 
     const from = data.from;
