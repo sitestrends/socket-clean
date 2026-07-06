@@ -111,6 +111,18 @@ socket.on("mark_seen", (data) => {
     const from = data.from;
     const to = data.to;
 
+    // send update only to sender
+    if (users[from]) {
+        users[from].forEach(socketId => {
+            io.to(socketId).emit("messages_seen", data);
+        });
+    }
+});
+/*socket.on("mark_seen", (data) => {
+
+    const from = data.from;
+    const to = data.to;
+
     // update DB if needed
     // OR just emit update
 
@@ -119,7 +131,7 @@ socket.on("mark_seen", (data) => {
         to: from
     });
 
-}); 
+}); */
 
 socket.on("messages_seen", (data) => {
 
