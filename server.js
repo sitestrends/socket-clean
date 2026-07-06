@@ -106,13 +106,46 @@ socket.emit("receive_message", msg);
 
 });   */
 
+socket.on("mark_seen", (data) => {
+
+    const from = data.from;
+    const to = data.to;
+
+    // update DB if needed
+    // OR just emit update
+
+    io.to(users[from]).emit("message_seen", {
+        from: to,
+        to: from
+    });
+
+}); 
+
 socket.on("messages_seen", (data) => {
+
+    const from = data.from;
+    const to = data.to;
+
+    if (users[from]) {
+        users[from].forEach(socketId => {
+            io.to(socketId).emit("messages_seen", data);
+        });
+    }
+
+    if (users[to]) {
+        users[to].forEach(socketId => {
+            io.to(socketId).emit("messages_seen", data);
+        });
+    }
+
+});
+/*socket.on("messages_seen", (data) => {
 
 
 io.emit("messages_seen", data);
 
 
-});   
+});   */   
 
 socket.on("disconnect", () => {
 
