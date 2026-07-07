@@ -14,7 +14,7 @@ origin: "*"
 const users = {};
 
 io.on("connection", (socket) => {
-
+socket.onAny((eventName, ...args) => { console.log("EVENT RECEIVED:", eventName, args); });
 socket.on("register", (userId) => {
 
     userId = String(userId);
