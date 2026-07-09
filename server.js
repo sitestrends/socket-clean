@@ -48,6 +48,23 @@ if (target) {
 
 socket.on("send_message", (data) => {
 
+    const msg = data;
+
+    const targetSockets = users[String(msg.to)];
+
+    console.log("SEND FILE MESSAGE:", msg);
+
+    if (targetSockets) {
+        targetSockets.forEach(socketId => {
+            io.to(socketId).emit("receive_message", msg);
+        });
+    }
+
+    socket.emit("receive_message", msg);
+
+});
+/*socket.on("send_message", (data) => {
+
         const msg = {
             id: Date.now().toString(),
 
@@ -63,7 +80,7 @@ socket.on("send_message", (data) => {
             time: new Date().toISOString(),
 
             seen: 0
-        };
+        };    
 
     const targetSockets = users[msg.to];
 
@@ -84,7 +101,7 @@ console.log("TARGET SOCKETS:", targetSockets);
         // Echo back to sender
         socket.emit("receive_message", msg);
 
-    });
+    });   */
 /*socket.on("send_message", (data) => {
 
 const msg = {
