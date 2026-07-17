@@ -36,7 +36,10 @@ socket.on("typing", (data) => {
       
     const targetSockets = users[String(data.to)];
 
-    if (!targetSockets) return;
+    if (!targetSockets) {
+        console.log("NO TARGET USER:", data.to);
+        return;
+    }
 
     targetSockets.forEach(socketId => {
 
