@@ -1,5 +1,5 @@
 console.log("🔥 SOCKET SERVER VERSION WITH TYPING LOADED");
-
+console.log("🔥 SERVER.JS DEPLOY TEST LOADED 🔥");
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
