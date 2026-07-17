@@ -1,5 +1,3 @@
-console.log("🔥 SOCKET SERVER VERSION WITH TYPING LOADED");
-console.log("🔥 SERVER.JS DEPLOY TEST LOADED 🔥");
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -16,7 +14,6 @@ origin: "*"
 const users = {};
 
 io.on("connection", (socket) => {
-    console.log("CONNECTED TO SOCKET SERVER:", socket.id);
 socket.onAny((eventName, ...args) => { console.log("EVENT RECEIVED:", eventName, args); });
 socket.on("register", (userId) => {
 
@@ -34,15 +31,10 @@ socket.on("register", (userId) => {
 });
 
 socket.on("typing", (data) => {
-
-      console.log("SERVER typing", data);
       
     const targetSockets = users[String(data.to)];
 
-    if (!targetSockets) {
-        console.log("NO TARGET USER:", data.to);
-        return;
-    }
+    if (!targetSockets) return;
 
     targetSockets.forEach(socketId => {
 
