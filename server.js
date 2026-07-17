@@ -32,17 +32,33 @@ socket.on("register", (userId) => {
 
 socket.on("typing", (data) => {
 
+    const targetSockets = users[String(data.to)];
 
-const target = users[String(data.to)];
+    if (!targetSockets) return;
 
-if (target) {
+    targetSockets.forEach(socketId => {
 
-  io.to(target).emit("typing", {
-    from: String(data.from)
-  });
+        io.to(socketId).emit("typing", {
+            from: String(data.from)
+        });
 
-}
+    });
 
+});
+
+socket.on("stop_typing", (data) => {
+
+    const targetSockets = users[String(data.to)];
+
+    if (!targetSockets) return;
+
+    targetSockets.forEach(socketId => {
+
+        io.to(socketId).emit("stop_typing", {
+            from: String(data.from)
+        });
+
+    });
 
 });
 
@@ -63,65 +79,7 @@ socket.on("send_message", (data) => {
     socket.emit("receive_message", msg);
 
 });
-/*socket.on("send_message", (data) => {
 
-        const msg = {
-            id: Date.now().toString(),
-
-            from: String(data.from),
-            to: String(data.to),
-
-            message: data.message || "",
-
-            file_name: data.file_name || null,
-            file_path: data.file_path || null,
-            file_type: data.file_type || null,
-
-            time: new Date().toISOString(),
-
-            seen: 0
-        };    
-
-    const targetSockets = users[msg.to];
-
-console.log("SEND FILE MESSAGE:", data);
-console.log("TARGET USER:", msg.to);
-console.log("TARGET SOCKETS:", targetSockets);
-
-    // Send to ALL sockets for that user
-    if (targetSockets) {
-
-        targetSockets.forEach(socketId => {
-
-            io.to(socketId).emit("receive_message", msg);
-
-        });
-
-    }
-        // Echo back to sender
-        socket.emit("receive_message", msg);
-
-    });   */
-/*socket.on("send_message", (data) => {
-
-const msg = {
-  from: String(data.from),
-  to: String(data.to),
-  message: data.message,
-  time: new Date().toISOString(),
-  seen: 0
-};
-
-const target = users[msg.to];
-
-if (target) {
-  io.to(target).emit("receive_message", msg);
-}
-
-socket.emit("receive_message", msg);
-
-
-});   */
 
 socket.on("mark_seen", (data) => {
 
@@ -146,57 +104,20 @@ socket.on("mark_seen", (data) => {
     }
 
 });
-/*socket.on("mark_seen", (data) => {
-
-    const from = String(data.from);
-    const to = String(data.to);
-
-    if (users[from]) {
-
-        users[from].forEach(socketId => {
-            io.to(socketId).emit("messages_seen", {
-                from,
-                to
-            });
-        });
-
-    }
-
-});   */
-/*socket.on("mark_seen", (data) => {
-
-    const from = data.from;
-    const to = data.to;
-
-    // send to sender ONLY
-    if (users[from]) {
-        users[from].forEach(socketId => {
-            io.to(socketId).emit("messages_seen", {
-                from: to,
-                to: from
-            });
-        });
-    }
-
-});   */
-/*socket.on("messages_seen", (data) => {
-
-
-io.emit("messages_seen", data);
-
-
-});   */   
 
 socket.on("disconnect", () => {
 
-  for (let userId in users) {
-    if (users[userId] === socket.id) {
-      delete users[userId];
-      break;
-    }
-  }
+    for (const userId in users) {
 
-  io.emit("online_users", Object.keys(users));
+        users[userId].delete(socket.id);
+
+        if (users[userId].size === 0) {
+            delete users[userId];
+        }
+
+    }
+
+    io.emit("online_users", Object.keys(users));
 
 });
 
