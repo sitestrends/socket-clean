@@ -32,6 +32,8 @@ socket.on("register", (userId) => {
 
 socket.on("typing", (data) => {
 
+      console.log("SERVER typing", data);
+      
     const targetSockets = users[String(data.to)];
 
     if (!targetSockets) return;
