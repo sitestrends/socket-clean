@@ -1,3 +1,5 @@
+console.log("🔥 SOCKET SERVER VERSION WITH TYPING LOADED");
+
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -14,6 +16,7 @@ origin: "*"
 const users = {};
 
 io.on("connection", (socket) => {
+    console.log("CONNECTED TO SOCKET SERVER:", socket.id);
 socket.onAny((eventName, ...args) => { console.log("EVENT RECEIVED:", eventName, args); });
 socket.on("register", (userId) => {
 
